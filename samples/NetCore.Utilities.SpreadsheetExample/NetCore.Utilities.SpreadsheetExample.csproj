@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EPPlus.Core" Version="1.5.4" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="NetCore.Utilities.Spreadsheet">
+      <HintPath>..\..\..\src\NetCore.Utilities.Spreadsheet\bin\Debug\netcoreapp2.2\NetCore.Utilities.Spreadsheet.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
