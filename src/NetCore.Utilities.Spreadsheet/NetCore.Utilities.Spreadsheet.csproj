@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  
+  <PropertyGroup>
+    <Version>0.0.0</Version>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <RootNamespace>ICG.NetCore.Utilities.Spreadsheet</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>ICG.NetCore.Utilities.Spreadsheet</PackageId>
+    <Title>NetCore Utilities Spreadsheet</Title>
+    <Description>A library extending the open source EPPlus Core project to provide an easily reusable spreadsheet generation capability.</Description>
+    <Copyright>Copyright 2019, IowaComputerGurus All Rights Reserved</Copyright>
+    <PackageProjectUrl>https://github.com/IowaComputerGurus/netcore.utilities.spreadsheet</PackageProjectUrl>
+    <PackageTags>aspnetcore;utility;spreadsheet</PackageTags>
+    <RepositoryUrl>https://github.com/IowaComputerGurus/netcore.utilities.spreadsheet</RepositoryUrl>
+    <Authors>MitchelSellers;IowaComputerGurus</Authors>
+    <Owners>IowaComputerGurus</Owners>
+    <PackageIconUrl>https://raw.githubusercontent.com/IowaComputerGurus/netcore.utilities.spreadsheet/master/icgAppIcon.png</PackageIconUrl>
+    <IsPackable>True</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EPPlus.Core" Version="1.5.4" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
+  </ItemGroup>
+
+</Project>
