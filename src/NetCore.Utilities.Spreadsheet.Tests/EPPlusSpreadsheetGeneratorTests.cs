@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using ICG.NetCore.Utilities.Spreadsheet;
 using Xunit;
 
 namespace ICG.NetCore.Utilities.Spreadsheet.Tests
@@ -124,6 +122,19 @@ namespace ICG.NetCore.Utilities.Spreadsheet.Tests
 
             //Assert
             Assert.Equal(expectedResult, actualResult);
+        }
+
+        [Fact]
+        public void CreateMultiSheetSpreadsheet_ShouldThrowError_WhenProvidedSheetsIsNull()
+        {
+            //Arrange
+
+            //Act
+            var actualResult =
+                Assert.Throws<ArgumentNullException>(() => _spreadsheetGenerator.CreateMultiSheetSpreadsheet(null));
+
+            //Assert
+            Assert.Equal("exportSheets", actualResult.ParamName);
         }
     }
 }

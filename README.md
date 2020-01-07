@@ -24,3 +24,11 @@ services.UseIcgNetCoreUtilitiesSpreadsheet();
 ## Creating Documents
 
 We are continuing to update this information.  For the quickest getting started guide please review the "samples" directory for samples.
+
+### Key Document Features
+This package is primarily geared towards the exporting of lists of objects into excel sheets.  The following key features are supported.
+
+* The ability to have one, or more, sheets of data exported
+* The ability to have a heading and subheading if desired
+* Data type formatting for Date & Currency fields
+* Auto-fit of all columns for display

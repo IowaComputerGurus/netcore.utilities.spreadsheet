@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.271
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29613.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCore.Utilities.Spreadsheet", "NetCore.Utilities.Spreadsheet\NetCore.Utilities.Spreadsheet.csproj", "{48F8F9BE-5579-4B92-AF46-194F755ECAB0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetCore.Utilities.Spreadsheet.Tests", "NetCore.Utilities.Spreadsheet.Tests\NetCore.Utilities.Spreadsheet.Tests.csproj", "{5DFA4C47-6FBF-42F7-8179-1A07404CB9DF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCore.Utilities.Spreadsheet.Tests", "NetCore.Utilities.Spreadsheet.Tests\NetCore.Utilities.Spreadsheet.Tests.csproj", "{5DFA4C47-6FBF-42F7-8179-1A07404CB9DF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
