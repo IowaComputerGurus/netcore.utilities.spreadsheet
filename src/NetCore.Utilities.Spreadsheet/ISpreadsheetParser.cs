@@ -9,7 +9,7 @@ namespace ICG.NetCore.Utilities.Spreadsheet
     public interface ISpreadsheetParser
     {
         /// <summary>
-        ///     Parses the provided document and returns a List of <see cref="T" /> objects based on the input data
+        ///     Parses the provided document and returns a List of objects based on the input data
         /// </summary>
         /// <typeparam name="T">The type to use for importing</typeparam>
         /// <param name="fileStream">The contents of the Excel File (XLSX format)</param>
