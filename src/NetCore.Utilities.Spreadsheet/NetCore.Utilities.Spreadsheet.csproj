@@ -14,7 +14,7 @@
     <PackageId>ICG.NetCore.Utilities.Spreadsheet</PackageId>
     <Title>NetCore Utilities Spreadsheet</Title>
     <Description>A library extending the open source EPPlus Core project to provide an easily reusable spreadsheet generation capability.</Description>
-    <Copyright>Copyright 2019, IowaComputerGurus All Rights Reserved</Copyright>
+    <Copyright>Copyright 2021, IowaComputerGurus All Rights Reserved</Copyright>
     <PackageProjectUrl>https://github.com/IowaComputerGurus/netcore.utilities.spreadsheet</PackageProjectUrl>
     <PackageTags>aspnetcore;utility;spreadsheet</PackageTags>
     <RepositoryUrl>https://github.com/IowaComputerGurus/netcore.utilities.spreadsheet</RepositoryUrl>
@@ -22,11 +22,19 @@
     <Owners>IowaComputerGurus</Owners>
     <PackageIconUrl>https://raw.githubusercontent.com/IowaComputerGurus/netcore.utilities.spreadsheet/master/icgAppIcon.png</PackageIconUrl>
     <IsPackable>True</IsPackable>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="EPPlus.Core" Version="1.5.4" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
 </Project>
