@@ -4,6 +4,9 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Spreadsheet;
 using OfficeOpenXml;
 
 namespace ICG.NetCore.Utilities.Spreadsheet
@@ -42,53 +45,102 @@ namespace ICG.NetCore.Utilities.Spreadsheet
             //Import
             using (fileStream)
             {
-                var excel = new ExcelPackage(fileStream);
-                using (var worksheet = excel.Workbook.Worksheets[worksheetNumber])
+                var excelDoc = SpreadsheetDocument.Open(fileStream, false);
+                var workbookPart = excelDoc.WorkbookPart;
+                var sheet = excelDoc.WorkbookPart.Workbook.Descendants<Sheet>().ToList()[worksheetNumber - 1]; //Offset due to 1 based values
+                var wsPart = workbookPart.GetPartById(sheet.Id) as WorksheetPart;
+                var collection = new Collection<T>();
+                var skipRows = skipHeaderRow ? 1 : 0;
+                foreach (Row row in wsPart.Worksheet.Descendants<Row>().Skip(skipRows))
                 {
-                    //Get the count of rows
-                    var endRow = worksheet.Dimension.End.Row;
-                    var collection = new Collection<T>();
-                    var startRow = skipHeaderRow ? 2 : 1; //1 based
+                    var tnew = new T();
+                    var cellCollection = row.Elements<Cell>().ToList();
 
-                    for (var i = startRow; i <= endRow; i++)
+                    foreach (var col in importColumnDefinitions)
                     {
-                        var tnew = new T();
-                        foreach (var col in importColumnDefinitions)
+                        var value = GetCellValue(cellCollection[col.Column - 1]);
+                        if (string.IsNullOrEmpty(value))
                         {
-                            //This is the real wrinkle to using reflection - Excel stores all numbers as double including int
-                            var val = worksheet.Cells[i, col.Column];
-                            //If it is numeric it is a double since that is how excel stores all numbers
-                            if (val.Value == null)
-                            {
-                                col.Property.SetValue(tnew, null);
-                            }
-
-                            else if (col.Property.PropertyType == typeof(int))
-                            {
-                                col.Property.SetValue(tnew, val.GetValue<int>());
-                            }
-
-                            else if (col.Property.PropertyType == typeof(double))
-                            {
-                                col.Property.SetValue(tnew, val.GetValue<double>());
-                            }
-
-                            else if (col.Property.PropertyType == typeof(DateTime))
-                            {
-                                col.Property.SetValue(tnew, val.GetValue<DateTime>());
-                            }
-                            else
-                            {
-                                //Its a string
-                                col.Property.SetValue(tnew, val.GetValue<string>());
-                            }
+                            col.Property.SetValue(tnew, null);
                         }
-                        collection.Add(tnew);
+
+                        else if (col.Property.PropertyType == typeof(int))
+                        {
+                            col.Property.SetValue(tnew, int.Parse(value));
+                        }
+
+                        else if (col.Property.PropertyType == typeof(double))
+                        {
+                            col.Property.SetValue(tnew, double.Parse(value));
+                        }
+
+                        else if (col.Property.PropertyType == typeof(DateTime))
+                        {
+                            col.Property.SetValue(tnew, DateTime.Parse(value));
+                        }
+                        else
+                        {
+                            //Its a string
+                            col.Property.SetValue(tnew, value);
+                        }
                     }
 
-                    return collection.ToList();
+                    collection.Add(tnew);
                 }
+
+                return collection.ToList();
             }
+        }
+
+        public static string GetCellValue(Cell cell)
+        {
+            if (cell == null)
+                return null;
+            if (cell.DataType == null)
+                return cell.InnerText;
+
+            string value = cell.InnerText;
+            switch (cell.DataType.Value)
+            {
+                case CellValues.SharedString:
+                    // For shared strings, look up the value in the shared strings table.
+                    // Get worksheet from cell
+                    OpenXmlElement parent = cell.Parent;
+                    while (parent.Parent != null && parent.Parent != parent
+                                                 && string.Compare(parent.LocalName, "worksheet", true) != 0)
+                    {
+                        parent = parent.Parent;
+                    }
+                    if (string.Compare(parent.LocalName, "worksheet", true) != 0)
+                    {
+                        throw new Exception("Unable to find parent worksheet.");
+                    }
+
+                    Worksheet ws = parent as Worksheet;
+                    SpreadsheetDocument ssDoc = ws.WorksheetPart.OpenXmlPackage as SpreadsheetDocument;
+                    SharedStringTablePart sstPart = ssDoc.WorkbookPart.GetPartsOfType<SharedStringTablePart>().FirstOrDefault();
+
+                    // lookup value in shared string table
+                    if (sstPart != null && sstPart.SharedStringTable != null)
+                    {
+                        value = sstPart.SharedStringTable.ElementAt(int.Parse(value)).InnerText;
+                    }
+                    break;
+
+                //this case within a case is copied from msdn. 
+                case CellValues.Boolean:
+                    switch (value)
+                    {
+                        case "0":
+                            value = "FALSE";
+                            break;
+                        default:
+                            value = "TRUE";
+                            break;
+                    }
+                    break;
+            }
+            return value;
         }
     }
 }
