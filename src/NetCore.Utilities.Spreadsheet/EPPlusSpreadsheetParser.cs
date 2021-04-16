@@ -20,6 +20,12 @@ namespace ICG.NetCore.Utilities.Spreadsheet
         /// <inheritdoc />
         public List<T> ParseDocument<T>(Stream fileStream, int worksheetNumber) where T : new()
         {
+            return ParseDocument<T>(fileStream, worksheetNumber, false);
+        }
+
+        /// <inheritdoc />
+        public List<T> ParseDocument<T>(Stream fileStream, int worksheetNumber, bool skipHeaderRow) where T : new()
+        {
             //Validate object is properly created
             var importColumnDefinitions = typeof(T)
                 .GetProperties()
@@ -30,7 +36,7 @@ namespace ICG.NetCore.Utilities.Spreadsheet
                     Column = p.GetCustomAttributes<SpreadsheetImportColumnAttribute>().First().ColumnIndex //safe because if where above
                 }).ToList();
 
-            if(importColumnDefinitions.Count == 0) 
+            if (importColumnDefinitions.Count == 0)
                 throw new ArgumentException("No columns identified as SpreadsheetImportColumns, unable to process", "T");
 
             //Import
@@ -40,20 +46,17 @@ namespace ICG.NetCore.Utilities.Spreadsheet
                 using (var worksheet = excel.Workbook.Worksheets[worksheetNumber])
                 {
                     //Get the count of rows
-                    var rows = worksheet.Cells
-                        .Select(cell => cell.Start.Row)
-                        .OrderBy(x => x).ToList();
-
+                    var endRow = worksheet.Dimension.End.Row;
                     var collection = new Collection<T>();
+                    var startRow = skipHeaderRow ? 2 : 1; //1 based
 
-                    for (var i = 1; i < rows.Count; i++)
+                    for (var i = startRow; i <= endRow; i++)
                     {
-                        var row = rows[i];
                         var tnew = new T();
                         foreach (var col in importColumnDefinitions)
                         {
                             //This is the real wrinkle to using reflection - Excel stores all numbers as double including int
-                            var val = worksheet.Cells[row, col.Column];
+                            var val = worksheet.Cells[i, col.Column];
                             //If it is numeric it is a double since that is how excel stores all numbers
                             if (val.Value == null)
                             {
