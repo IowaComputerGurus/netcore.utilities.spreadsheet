@@ -24,5 +24,15 @@ namespace ICG.NetCore.Utilities.Spreadsheet
         /// <param name="worksheetNumber">The number for the worksheet, 1 based.</param>
         /// <returns>The parsed information</returns>
         List<T> ParseDocument<T>(Stream fileStream, int worksheetNumber) where T : new();
+
+        /// <summary>
+        /// Parses the provided document and returns a List of T objects based on the input data, using the specific worksheet number
+        /// </summary>
+        /// <typeparam name="T">The type to use for importing</typeparam>
+        /// <param name="fileStream">The contents of the Excel File (XLSX format</param>
+        /// <param name="worksheetNumber">The number for the worksheet, 1 based.</param>
+        /// <param name="skipHeaderRow">If set to true will skip the first row of data as header information</param>
+        /// <returns>The parsed information</returns>
+        List<T> ParseDocument<T>(Stream fileStream, int worksheetNumber, bool skipHeaderRow) where T : new();
     }
 }
