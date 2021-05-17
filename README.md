@@ -1,16 +1,18 @@
 # NetCore.Utilities.Spreadsheet ![](https://img.shields.io/github/license/iowacomputergurus/netcore.utilities.spreadsheet.svg)
-A utility to assist in creating Excel spreadsheets in .NET Core and ASP.NET Core applications using the EPPlus.Core library.  This utility allows you to export .NET Object to Excel by simply adding metadata information regarding the desired column formats, title etc.  Allowing quick & consistent excel exports.
+A utility to assist in creating Excel spreadsheets in .NET Core and ASP.NET Core applications using the OpenXML library.  This utility allows you to export collections of
+.NET Objects to Excel by simply adding metadata information regarding the desired column formats, title etc.  Allowing quick & consistent excel exports, without the hassle of trying
+to understand the OpenXML format
 
 ## NuGet Package Information
 ICG.NetCore.Utilities.Spreadsheet ![](https://img.shields.io/nuget/v/icg.netcore.utilities.spreadsheet.svg) ![](https://img.shields.io/nuget/dt/icg.netcore.utilities.spreadsheet.svg)
 
 ## Dependencies
-This project depends on the EPPlus.Core NuGet package.  No changes are made to the EPPlus.Core package, and its usage is goverened by its own license agreement.
+This project depends on the DocumentFormat.OpenXml NuGet package provided by the Microsoft team. It is a MIT licensed library.
 
 ## Usage
 
 ## Installation
-Standard installation via HuGet Package Manager
+Standard installation via NuGet Package Manager
 ```
 Install-Package ICG.NetCore.Utilities.Spreadsheet
 ```
