@@ -2,13 +2,18 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="EPPlus.Core" Version="1.5.4" />
-    <PackageReference Include="ICG.NetCore.Utilities.Spreadsheet" Version="2.2.9" />
+    <PackageReference Include="DocumentFOrmat.OpenXml" Version="2.12.3" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="NetCore.Utilities.Spreadsheet">
+      <HintPath>..\..\src\NetCore.Utilities.Spreadsheet\bin\Debug\netcoreapp3.1\NetCore.Utilities.Spreadsheet.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
