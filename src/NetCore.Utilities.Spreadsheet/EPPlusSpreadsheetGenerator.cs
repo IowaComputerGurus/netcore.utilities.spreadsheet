@@ -1,14 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
+using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Spreadsheet;
 using OfficeOpenXml;
+using FontSize = DocumentFormat.OpenXml.Spreadsheet.FontSize;
 
 namespace ICG.NetCore.Utilities.Spreadsheet
 {
     /// <summary>
     /// A concrete implementation of <see cref="ISpreadsheetGenerator"/> using the EPPlus project
     /// </summary>
-    public class EPPlusSpreadsheetGenerator: ISpreadsheetGenerator
+    public class EPPlusSpreadsheetGenerator : ISpreadsheetGenerator
     {
 
         /// <inheritdoc />
@@ -102,6 +107,14 @@ namespace ICG.NetCore.Utilities.Spreadsheet
             }
         }
 
+        private enum FontStyleIndex
+        {
+            Default = 0,
+            Header = 1,
+            SubHeader = 2,
+            DataHeader = 3
+        }
+
         /// <summary>
         ///     Creates a single worksheet document using the provided configuration information
         /// </summary>
@@ -126,81 +139,199 @@ namespace ICG.NetCore.Utilities.Spreadsheet
                     nameof(exportConfiguration.DocumentSubTitle));
 
             //Create the package and render
-            using (var package = new ExcelPackage())
+            using (var documentStream = new MemoryStream())
             {
-                var sheet = package.Workbook.Worksheets.Add(exportConfiguration.WorksheetName);
-                var currentDataRow =
-                    CalculateDataHeaderRow(exportConfiguration.RenderTitle, exportConfiguration.RenderSubTitle);
+                //Create the document
+                var spreadsheetDocument =
+                    SpreadsheetDocument.Create(documentStream, SpreadsheetDocumentType.Workbook);
 
-                //Render the data headers first, to establish the range of the sheet, plus column names
-                var headerNames = new List<string>();
+                //Add the workbook
+                var workbookPart = spreadsheetDocument.AddWorkbookPart();
+                workbookPart.Workbook = new Workbook();
 
-                //Run headers
-                var properties = TypeDescriptor.GetProperties(typeof(T));
-                for (var i = 0; i < properties.Count; i++)
+                //Add a worksheet to it
+                var worksheetPart = workbookPart.AddNewPart<WorksheetPart>();
+                var data = new SheetData();
+                worksheetPart.Worksheet = new Worksheet(data);
+
+                //Add the sheet to the workbook
+                var sheets = spreadsheetDocument.WorkbookPart.Workbook.AppendChild<Sheets>(new Sheets());
+                var sheet = new Sheet
                 {
-                    sheet.Cells[currentDataRow, i + 1].Value = properties[i].DisplayName;
-                    headerNames.Add(properties[i].DisplayName);
+                    Id = spreadsheetDocument.WorkbookPart.GetIdOfPart(worksheetPart),
+                    SheetId = 1,
+                    Name = exportConfiguration.WorksheetName
+                };
+                sheets.Append(sheet);
 
-                    //Handle formats
-                    if (properties[i].Attributes.Count <= 0) continue;
-                    foreach (var attribute in properties[i].Attributes)
-                    {
-                        if (!(attribute is SpreadsheetColumnFormatAttribute detail))
-                            continue;
-
-                        sheet.Column(i + 1).Style.Numberformat.Format = GetFormatSpecifier(detail.Format);
-                        break;
-                    }
-                }
-
-                //Style the header cells
-                using (var headerRange = sheet.Cells[currentDataRow, 1, currentDataRow, headerNames.Count])
+                //Setup our styles
+                var stylesPart = spreadsheetDocument.WorkbookPart.AddNewPart<WorkbookStylesPart>();
+                stylesPart.Stylesheet = new Stylesheet();
+                // blank font list
+                stylesPart.Stylesheet.Fonts = new Fonts();
+                stylesPart.Stylesheet.Fonts.Count = 4;
+                stylesPart.Stylesheet.Fonts.AppendChild(new Font()
                 {
-                    headerRange.Style.Font.Bold = true;
-                    headerRange.Style.WrapText = true;
-                }
+                    FontSize = new FontSize { Val = 11 }
+                });
+                stylesPart.Stylesheet.Fonts.AppendChild(new Font()
+                {
+                    Bold = new Bold(),
+                    FontSize = new FontSize() { Val = 14 }
+                });
+                stylesPart.Stylesheet.Fonts.AppendChild(new Font()
+                {
+                    Bold = new Bold(),
+                    FontSize = new FontSize() { Val = 12 }
+                });
+                stylesPart.Stylesheet.Fonts.AppendChild(new Font()
+                {
+                    Bold = new Bold()
+                });
 
-                //Set title
+                // create fills
+                stylesPart.Stylesheet.Fills = new Fills();
+
+                // create a solid red fill
+                var solidRed = new PatternFill() { PatternType = PatternValues.Solid };
+                solidRed.ForegroundColor = new ForegroundColor { Rgb = HexBinaryValue.FromString("FFFF0000") }; // red fill
+                solidRed.BackgroundColor = new BackgroundColor { Indexed = 64 };
+
+                stylesPart.Stylesheet.Fills.AppendChild(new Fill { PatternFill = new PatternFill { PatternType = PatternValues.None } }); // required, reserved by Excel
+                stylesPart.Stylesheet.Fills.AppendChild(new Fill { PatternFill = new PatternFill { PatternType = PatternValues.Gray125 } }); // required, reserved by Excel
+                stylesPart.Stylesheet.Fills.AppendChild(new Fill { PatternFill = solidRed });
+                stylesPart.Stylesheet.Fills.Count = 3;
+
+                // blank border list
+                stylesPart.Stylesheet.Borders = new Borders();
+                stylesPart.Stylesheet.Borders.Count = 1;
+                stylesPart.Stylesheet.Borders.AppendChild(new Border());
+
+                // blank cell format list
+                stylesPart.Stylesheet.CellStyleFormats = new CellStyleFormats();
+                stylesPart.Stylesheet.CellStyleFormats.Count = 1;
+                stylesPart.Stylesheet.CellStyleFormats.AppendChild(new CellFormat());
+
+                // cell format list
+                stylesPart.Stylesheet.CellFormats = new CellFormats();
+                // empty one for index 0, seems to be required
+                stylesPart.Stylesheet.CellFormats.AppendChild(new CellFormat()); //Default
+                // cell format references style format 0, font 0, border 0, fill 2 and applies the fill
+                //Header
+                stylesPart.Stylesheet.CellFormats.AppendChild(new CellFormat { FormatId = 0, FontId = 1, BorderId = 0, FillId = 0 });//.AppendChild(new Alignment { Horizontal = HorizontalAlignmentValues.Center });
+                //Sub-header
+                stylesPart.Stylesheet.CellFormats.AppendChild(new CellFormat
+                { FormatId = 0, FontId = 2, BorderId = 0, FillId = 0 });
+                //Data-header
+                stylesPart.Stylesheet.CellFormats.AppendChild(new CellFormat
+                { FormatId = 0, FontId = 3, BorderId = 0, FillId = 0 });
+
+                stylesPart.Stylesheet.CellFormats.Count = 3;
+
+                stylesPart.Stylesheet.Save();
+
+
+
+                //Build out our sheet information
+                UInt32 currentRow = 1;
                 if (exportConfiguration.RenderTitle)
                 {
-                    //always at row 1
-                    using (var titleRange = sheet.Cells[1, 1, 1, headerNames.Count])
+                    var row = new Row { RowIndex = 1 };
+                    var headerCell = new Cell
                     {
-                        titleRange.Merge = true;
-                        titleRange.Value = exportConfiguration.DocumentTitle;
-                        titleRange.Style.Font.Bold = true;
-                        titleRange.Style.Font.Size = 14;
-                    }
+                        CellReference = $"A{currentRow}",
+                        CellValue = new CellValue(exportConfiguration.DocumentTitle),
+                        DataType = CellValues.String,
+                        StyleIndex = (int)FontStyleIndex.Header
+                    };
+                    row.Append(headerCell);
+                    data.Append(row);
+                    //Increment row
+                    currentRow++;
                 }
 
-                //Set Sub-Title
                 if (exportConfiguration.RenderSubTitle)
                 {
-                    var subHeaderRow = currentDataRow -1; //Just before header
-                    using (var titleRange = sheet.Cells[subHeaderRow, 1, subHeaderRow, headerNames.Count])
+                    var row = new Row { RowIndex = currentRow };
+                    var headerCell = new Cell
                     {
-                        titleRange.Merge = true;
-                        titleRange.Value = exportConfiguration.DocumentSubTitle;
-                        titleRange.Style.Font.Bold = true;
-                        titleRange.Style.Font.Size = 12;
-                    }
+                        CellReference = $"A{currentRow}",
+                        CellValue = new CellValue(exportConfiguration.DocumentSubTitle),
+                        DataType = CellValues.String,
+                        StyleIndex = (int)FontStyleIndex.SubHeader
+                    };
+                    row.Append(headerCell);
+                    data.Append(row);
+                    //Increment row
+                    currentRow++;
                 }
 
-                //Load data
-                foreach(var item in exportConfiguration.ExportData)
+                //Run data headers
+                var headerNames = new List<string>();
+                //TODO: AUto Size - https://stackoverflow.com/questions/18268620/openxml-auto-size-column-width-in-excel
+                //Run headers
+                var properties = TypeDescriptor.GetProperties(typeof(T));
+                var headerRow = new Row { RowIndex = currentRow };
+                for (var i = 0; i < properties.Count; i++)
                 {
-                    currentDataRow++; //Increment current row
+                    var headerCell = new Cell
+                    {
+                        CellValue = new CellValue(properties[i].DisplayName),
+                        DataType = CellValues.String,
+                        StyleIndex = (int)FontStyleIndex.DataHeader
+                    };
+                    headerRow.Append(headerCell);
+                    headerNames.Add(properties[i].DisplayName);
+
+
+                    //Handle formats
+                    //if (properties[i].Attributes.Count <= 0) continue;
+                    //foreach (var attribute in properties[i].Attributes)
+                    //{
+                    //    if (!(attribute is SpreadsheetColumnFormatAttribute detail))
+                    //        continue;
+
+                    //    sheet.Column(i + 1).Style.Numberformat.Format = GetFormatSpecifier(detail.Format);
+                    //    break;
+                    //}
+                }
+                data.Append(headerRow);
+                currentRow++;
+
+                //Run the data
+                foreach (var item in exportConfiguration.ExportData)
+                {
+                    var dataRow = new Row {RowIndex = currentRow};
                     for (var p = 0; p < properties.Count; p++)
                     {
-                        sheet.Cells[currentDataRow, p + 1].Value = properties[p].GetValue(item);
+                        var dataCell = new Cell
+                        {
+                            CellValue = new CellValue(properties[0].GetValue(item).ToString()),
+                            DataType = CellValues.String
+                        };
+                        dataRow.Append(dataCell);
                     }
-                }
-                
-                //Auto Fit
-                sheet.Cells[sheet.Dimension.Address].AutoFitColumns();
 
-                return package.GetAsByteArray();
+                    data.Append(dataRow);
+                    currentRow++;
+                }
+
+                workbookPart.Workbook.Save();
+                spreadsheetDocument.Close();
+
+                //Return the bytearray
+                documentStream.Seek(0, SeekOrigin.Begin);
+                return documentStream.ToArray();
+
+
+
+
+                
+
+                ////Auto Fit
+                //sheet.Cells[sheet.Dimension.Address].AutoFitColumns();
+
+                //return package.GetAsByteArray();
             }
         }
 
@@ -216,7 +347,7 @@ namespace ICG.NetCore.Utilities.Spreadsheet
                 return 1; //Headers start at the top
             if (showSubTitle && showTitle)
                 return 3; //Headers start after title & subtitle
-            
+
             //Headers are after a header
             return 2;
         }
