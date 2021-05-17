@@ -7,12 +7,11 @@ using System.Reflection;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
-using OfficeOpenXml;
 
 namespace ICG.NetCore.Utilities.Spreadsheet
 {
     /// <inheritdoc />
-    public class EPPlusSpreadsheetParser : ISpreadsheetParser
+    public class OpenXmlSpreadsheetParser : ISpreadsheetParser
     {
         /// <inheritdoc />
         public List<T> ParseDocument<T>(Stream fileStream) where T : new()
@@ -92,7 +91,7 @@ namespace ICG.NetCore.Utilities.Spreadsheet
             }
         }
 
-        public static string GetCellValue(Cell cell)
+        private static string GetCellValue(Cell cell)
         {
             if (cell == null)
                 return null;

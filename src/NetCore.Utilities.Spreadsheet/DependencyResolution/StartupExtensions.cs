@@ -15,7 +15,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             //Bind additional services
             services.AddTransient<ISpreadsheetGenerator, EPPlusSpreadsheetGenerator>();
-            services.AddTransient<ISpreadsheetParser, EPPlusSpreadsheetParser>();
+            services.AddTransient<ISpreadsheetParser, OpenXmlSpreadsheetParser>();
         }
     }
 }
