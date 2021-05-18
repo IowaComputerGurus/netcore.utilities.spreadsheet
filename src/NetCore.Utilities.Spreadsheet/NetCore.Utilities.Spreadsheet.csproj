@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>ICG.NetCore.Utilities.Spreadsheet</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
@@ -13,7 +13,7 @@
   <PropertyGroup>
     <PackageId>ICG.NetCore.Utilities.Spreadsheet</PackageId>
     <Title>NetCore Utilities Spreadsheet</Title>
-    <Description>A library extending the open source EPPlus Core project to provide an easily reusable spreadsheet generation capability.</Description>
+    <Description>A library containing an easily reusable spreadsheet generation and parsing capability leveraging the OpenXml specification.</Description>
     <Copyright>Copyright 2021, IowaComputerGurus All Rights Reserved</Copyright>
     <PackageProjectUrl>https://github.com/IowaComputerGurus/netcore.utilities.spreadsheet</PackageProjectUrl>
     <PackageTags>aspnetcore;utility;spreadsheet</PackageTags>
@@ -29,7 +29,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="EPPlus.Core" Version="1.5.4" />
+    <PackageReference Include="DocumentFormat.OpenXml" Version="2.12.3" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
       <PrivateAssets>all</PrivateAssets>

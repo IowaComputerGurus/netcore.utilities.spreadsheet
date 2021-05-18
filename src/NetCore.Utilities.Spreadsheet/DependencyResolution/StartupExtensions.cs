@@ -14,8 +14,8 @@ namespace Microsoft.Extensions.DependencyInjection
         public static void UseIcgNetCoreUtilitiesSpreadsheet(this IServiceCollection services)
         {
             //Bind additional services
-            services.AddTransient<ISpreadsheetGenerator, EPPlusSpreadsheetGenerator>();
-            services.AddTransient<ISpreadsheetParser, EPPlusSpreadsheetParser>();
+            services.AddTransient<ISpreadsheetGenerator, OpenXmlSpreadsheetGenerator>();
+            services.AddTransient<ISpreadsheetParser, OpenXmlSpreadsheetParser>();
         }
     }
 }

@@ -6,13 +6,13 @@ using Xunit;
 
 namespace ICG.NetCore.Utilities.Spreadsheet.Tests
 {
-    public class EPPlusSpreadsheetParserTests
+    public class OpenXmlSpreadsheetParserTests
     {
         private readonly ISpreadsheetParser _spreadsheetParser;
 
-        public EPPlusSpreadsheetParserTests()
+        public OpenXmlSpreadsheetParserTests()
         {
-            _spreadsheetParser = new EPPlusSpreadsheetParser();
+            _spreadsheetParser = new OpenXmlSpreadsheetParser();
         }
 
 

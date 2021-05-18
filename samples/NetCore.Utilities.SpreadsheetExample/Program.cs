@@ -32,7 +32,21 @@ namespace NetCore.Utilities.SpreadsheetExample
             };
             var fileContent = exportGenerator.CreateSingleSheetSpreadsheet(exportDefinition);
             System.IO.File.WriteAllBytes("Sample.xlsx", fileContent);
-            Console.WriteLine("File Created");
+
+            var multiSheet = new List<ISpreadsheetConfiguration<object>>();
+            multiSheet.Add(exportDefinition);
+            multiSheet.Add(new SpreadsheetConfiguration<SimpleExportData>
+            {
+                RenderTitle = true,
+                DocumentTitle = "Sample Second of 50 Records",
+                RenderSubTitle = true,
+                DocumentSubTitle = "Showing the full options",
+                ExportData = GetSampleExportData(50),
+                WorksheetName = "Additional"
+            });
+            var multiFileContent = exportGenerator.CreateMultiSheetSpreadsheet(multiSheet);
+            System.IO.File.WriteAllBytes("Sample-Multi.xlsx", multiFileContent);
+            Console.WriteLine("Files Created");
             Console.ReadLine();
         }
 
@@ -42,7 +56,7 @@ namespace NetCore.Utilities.SpreadsheetExample
             for (var i = 0; i < numberOfRecords; i++)
             {
                 listData.Add(new SimpleExportData
-                    {DueDate = DateTime.Now.AddDays(i), Notes = $"Record {i} notes", Title = $"Sample Data Row #{i}"});
+                    {DueDate = DateTime.Now.AddDays(i), Notes = $"Record {i} notes", TotalCost = 15m, Title = $"Sample Data Row #{i}"});
             }
 
             return listData;
