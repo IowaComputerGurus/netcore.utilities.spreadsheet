@@ -1,16 +1,18 @@
 # NetCore.Utilities.Spreadsheet ![](https://img.shields.io/github/license/iowacomputergurus/netcore.utilities.spreadsheet.svg)
-A utility to assist in creating Excel spreadsheets in .NET Core and ASP.NET Core applications using the EPPlus.Core library.  This utility allows you to export .NET Object to Excel by simply adding metadata information regarding the desired column formats, title etc.  Allowing quick & consistent excel exports.
+A utility to assist in creating Excel spreadsheets in .NET Core and ASP.NET Core applications using the OpenXML library.  This utility allows you to export collections of
+.NET Objects to Excel by simply adding metadata information regarding the desired column formats, title etc.  Allowing quick & consistent excel exports, without the hassle of trying
+to understand the OpenXML format
 
 ## NuGet Package Information
 ICG.NetCore.Utilities.Spreadsheet ![](https://img.shields.io/nuget/v/icg.netcore.utilities.spreadsheet.svg) ![](https://img.shields.io/nuget/dt/icg.netcore.utilities.spreadsheet.svg)
 
 ## Dependencies
-This project depends on the EPPlus.Core NuGet package.  No changes are made to the EPPlus.Core package, and its usage is goverened by its own license agreement.
+This project depends on the DocumentFormat.OpenXml NuGet package provided by the Microsoft team. It is a MIT licensed library.
 
 ## Usage
 
 ## Installation
-Standard installation via HuGet Package Manager
+Standard installation via NuGet Package Manager
 ```
 Install-Package ICG.NetCore.Utilities.Spreadsheet
 ```
@@ -21,11 +23,26 @@ To setup the needed dependency injection items for this library, add the followi
 services.UseIcgNetCoreUtilitiesSpreadsheet();
 ```
 
-## Creating Documents
+## Sample Single Document Export
 
-We are continuing to update this information.  For the quickest getting started guide please review the "samples" directory for samples.
+Exporting a single collection to a single excel file can be done very simply. 
 
-### Key Document Features
+```
+var exportGenerator = provider.GetService<ISpreadsheetGenerator>();
+var exportDefinition = new SpreadsheetConfiguration<SimpleExportData>
+{
+    RenderTitle = true,
+    DocumentTitle = "Sample Export of 100 Records",
+    RenderSubTitle = true,
+    DocumentSubTitle = "Showing the full options",
+    ExportData = GetSampleExportData(100),
+    WorksheetName = "Sample"
+};
+var fileContent = exportGenerator.CreateSingleSheetSpreadsheet(exportDefinition);
+System.IO.File.WriteAllBytes("Sample.xlsx", fileContent);
+```
+
+## Key Features
 This package is primarily geared towards the exporting of lists of objects into excel sheets.  The following key features are supported.
 
 * The ability to have one, or more, sheets of data exported
