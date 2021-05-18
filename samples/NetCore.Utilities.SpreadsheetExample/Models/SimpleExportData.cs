@@ -12,6 +12,10 @@ namespace NetCore.Utilities.SpreadsheetExample.Models
         [SpreadsheetColumnFormat("D")]
         public DateTime DueDate { get; set; }
 
+        [DisplayName("Total Cost")]
+        [SpreadsheetColumnFormat("C")]
+        public decimal TotalCost { get; set; }
+
         public string Notes { get; set; }
     }
 }
