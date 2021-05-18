@@ -13,7 +13,7 @@
   <PropertyGroup>
     <PackageId>ICG.NetCore.Utilities.Spreadsheet</PackageId>
     <Title>NetCore Utilities Spreadsheet</Title>
-    <Description>A library extending the open source EPPlus Core project to provide an easily reusable spreadsheet generation capability.</Description>
+    <Description>A library containing an easily reusable spreadsheet generation and parsing capability leveraging the OpenXml specification.</Description>
     <Copyright>Copyright 2021, IowaComputerGurus All Rights Reserved</Copyright>
     <PackageProjectUrl>https://github.com/IowaComputerGurus/netcore.utilities.spreadsheet</PackageProjectUrl>
     <PackageTags>aspnetcore;utility;spreadsheet</PackageTags>
