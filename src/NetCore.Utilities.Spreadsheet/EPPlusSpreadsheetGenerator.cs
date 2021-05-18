@@ -128,7 +128,8 @@ namespace ICG.NetCore.Utilities.Spreadsheet
             /// <summary>
             /// Headers for actual data.
             /// </summary>
-            DataHeader = 3
+            DataHeader = 3,
+            NormalCurrency = 4
         }
 
         /// <summary>
@@ -213,6 +214,9 @@ namespace ICG.NetCore.Utilities.Spreadsheet
                 stylesPart.Stylesheet.CellStyleFormats.Count = 1;
                 stylesPart.Stylesheet.CellStyleFormats.AppendChild(new CellFormat());
 
+                stylesPart.Stylesheet.NumberingFormats = new NumberingFormats();
+                stylesPart.Stylesheet.NumberingFormats.AppendChild(new NumberingFormat {NumberFormatId = 164, FormatCode = "\"$\"#,##0.00"});
+
                 // cell format list
                 stylesPart.Stylesheet.CellFormats = new CellFormats();
                 
@@ -226,8 +230,12 @@ namespace ICG.NetCore.Utilities.Spreadsheet
                 //Data-header
                 stylesPart.Stylesheet.CellFormats.AppendChild(new CellFormat
                 { FormatId = 0, FontId = 3, BorderId = 0, FillId = 0 });
+                stylesPart.Stylesheet.CellFormats.AppendChild(new CellFormat
+                {
+                    FormatId = 0, FontId = 0, BorderId = 0, FillId = 0, NumberFormatId = 164, ApplyNumberFormat = true
+                });
 
-                stylesPart.Stylesheet.CellFormats.Count = 4;
+                stylesPart.Stylesheet.CellFormats.Count = 5;
                 stylesPart.Stylesheet.Save();
 
 
@@ -267,11 +275,9 @@ namespace ICG.NetCore.Utilities.Spreadsheet
                 }
 
                 //Run data headers
-                //TODO: AUto Size - https://stackoverflow.com/questions/18268620/openxml-auto-size-column-width-in-excel
-                //Run headers
-                var properties = typeof(T).GetProperties();
                 var headerProperties = TypeDescriptor.GetProperties(typeof(T));
                 var headerRow = new Row { RowIndex = currentRow };
+                var customFormats = new Dictionary<string, UInt32Value>();
                 foreach(PropertyDescriptor prop in headerProperties)
                 {
                     var headerCell = new Cell
@@ -283,15 +289,15 @@ namespace ICG.NetCore.Utilities.Spreadsheet
                     headerRow.Append(headerCell);
 
                     //Handle formats
-                    //if (properties[i].Attributes.Count <= 0) continue;
-                    //foreach (var attribute in properties[i].Attributes)
-                    //{
-                    //    if (!(attribute is SpreadsheetColumnFormatAttribute detail))
-                    //        continue;
+                    if (prop.Attributes.Count <= 0) continue;
+                    foreach (var attribute in prop.Attributes)
+                    {
+                        if (!(attribute is SpreadsheetColumnFormatAttribute detail))
+                            continue;
 
-                    //    sheet.Column(i + 1).Style.Numberformat.Format = GetFormatSpecifier(detail.Format);
-                    //    break;
-                    //}
+                        customFormats.Add(prop.DisplayName, (int)FontStyleIndex.NormalCurrency);
+                        break;
+                    }
                 }
                 data.Append(headerRow);
                 currentRow++;
@@ -300,7 +306,7 @@ namespace ICG.NetCore.Utilities.Spreadsheet
                 foreach (var item in exportConfiguration.ExportData)
                 {
                     var dataRow = new Row {RowIndex = currentRow};
-                    foreach (var prop in properties)
+                    foreach (PropertyDescriptor prop in headerProperties)
                     {
                         var itemValue = prop.GetValue(item);
                         var dataCell = new Cell
@@ -308,6 +314,11 @@ namespace ICG.NetCore.Utilities.Spreadsheet
                             CellValue = new CellValue(itemValue?.ToString()),
                             DataType = CellValues.String
                         };
+                        if (customFormats.ContainsKey(prop.DisplayName))
+                        {
+                            dataCell.StyleIndex = customFormats[prop.DisplayName];
+                            dataCell.DataType = CellValues.Number;
+                        }
                         dataRow.Append(dataCell);
                     }
 
@@ -318,10 +329,7 @@ namespace ICG.NetCore.Utilities.Spreadsheet
                 //Auto-size
                 Columns columns = AutoSize(data);
 
-                //Assemble the full document now with our properly sized/formatted sheet
-                
-
-                //Add a worksheet to it
+                //Add a worksheet to our document
                 var worksheetPart = workbookPart.AddNewPart<WorksheetPart>();
                 worksheetPart.Worksheet = new Worksheet();
                 worksheetPart.Worksheet.Append(columns);
@@ -383,6 +391,7 @@ namespace ICG.NetCore.Utilities.Spreadsheet
 
         private Columns AutoSize(SheetData sheetData)
         {
+            //Adapted from - https://stackoverflow.com/questions/18268620/openxml-auto-size-column-width-in-excel
             var maxColWidth = GetMaxCharacterWidth(sheetData);
 
             Columns columns = new Columns();
