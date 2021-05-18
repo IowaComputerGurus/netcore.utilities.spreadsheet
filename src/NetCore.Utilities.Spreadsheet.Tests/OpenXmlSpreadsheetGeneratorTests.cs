@@ -5,13 +5,13 @@ using Xunit;
 namespace ICG.NetCore.Utilities.Spreadsheet.Tests
 {
     // ReSharper disable once InconsistentNaming
-    public class EPPlusSpreadsheetGeneratorTests
+    public class OpenXmlSpreadsheetGeneratorTests
     {
         private readonly ISpreadsheetGenerator _spreadsheetGenerator;
 
-        public EPPlusSpreadsheetGeneratorTests()
+        public OpenXmlSpreadsheetGeneratorTests()
         {
-            _spreadsheetGenerator = new EPPlusSpreadsheetGenerator();
+            _spreadsheetGenerator = new OpenXmlSpreadsheetGenerator();
         }
 
         [Fact]
@@ -90,38 +90,6 @@ namespace ICG.NetCore.Utilities.Spreadsheet.Tests
                 _spreadsheetGenerator.CreateSingleSheetSpreadsheet<SampleExportRecord>(configuration));
             //Assert for the proper property
             Assert.Equal("DocumentSubTitle", result.ParamName);
-        }
-
-        [Theory]
-        [InlineData("C", "\"$\"#,##0.00")]
-        [InlineData("D", "MM/dd/yyyy")]
-        [InlineData("yy/MM/dd", "yy/MM/dd")]
-        public void GetFormatSpecifier_ShouldReturnProperFormatString(string requestedFormat, string expectedResult)
-        {
-            //Arrange
-
-            //Act
-            var actualResult = EPPlusSpreadsheetGenerator.GetFormatSpecifier(requestedFormat);
-
-            //Assert
-            Assert.Equal(expectedResult, actualResult);
-        }
-
-        [Theory]
-        [InlineData(false, false, 1)]
-        [InlineData(true, false, 2)]
-        [InlineData(false, true, 2)]
-        [InlineData(true, true, 3)]
-        public void CalculateDataHeaderRow_ShouldReturnProperValue(bool displayTitle, bool displaySubTitle,
-            int expectedResult)
-        {
-            //Arrange
-
-            //Act
-            var actualResult = EPPlusSpreadsheetGenerator.CalculateDataHeaderRow(displayTitle, displaySubTitle);
-
-            //Assert
-            Assert.Equal(expectedResult, actualResult);
         }
 
         [Fact]
