@@ -262,7 +262,14 @@ namespace ICG.NetCore.Utilities.Spreadsheet
                     {
                         dataCell.StyleIndex = customFormats[prop.DisplayName];
                         if (dataCell.StyleIndex == 4)
+                        {
                             dataCell.DataType = CellValues.Number;
+                            dataCell.CellValue = new CellValue(decimal.Parse(itemValue?.ToString()));
+                        }
+                        else if (dataCell.StyleIndex == 5) //Date
+                        {
+                            dataCell.CellValue = new CellValue(DateTime.Parse(itemValue.ToString()).ToShortDateString());
+                        }
                     }
 
                     dataRow.Append(dataCell);
@@ -367,8 +374,15 @@ namespace ICG.NetCore.Utilities.Spreadsheet
                     if (customFormats.ContainsKey(prop.DisplayName))
                     {
                         dataCell.StyleIndex = customFormats[prop.DisplayName];
-                        if(dataCell.StyleIndex == 4)
+                        if (dataCell.StyleIndex == 4)
+                        {
                             dataCell.DataType = CellValues.Number;
+                            dataCell.CellValue = new CellValue(decimal.Parse(itemValue?.ToString()));
+                        }
+                        else if (dataCell.StyleIndex == 5) //Date
+                        {
+                            dataCell.CellValue = new CellValue(DateTime.Parse(itemValue.ToString()).ToShortDateString());
+                        }
                     }
 
                     dataRow.Append(dataCell);
@@ -450,12 +464,13 @@ namespace ICG.NetCore.Utilities.Spreadsheet
 
             //Header
             styles.CellFormats.AppendChild(new CellFormat { FormatId = 0, FontId = 1, BorderId = 0, FillId = 0 });//.AppendChild(new Alignment { Horizontal = HorizontalAlignmentValues.Center });
-                                                                                                                  //Sub-header
-                                                                                                                  styles.CellFormats.AppendChild(new CellFormat
-            { FormatId = 0, FontId = 2, BorderId = 0, FillId = 0 });
+            
+            //Sub-header
+            styles.CellFormats.AppendChild(new CellFormat { FormatId = 0, FontId = 2, BorderId = 0, FillId = 0 });
+            
             //Data-header
-            styles.CellFormats.AppendChild(new CellFormat
-            { FormatId = 0, FontId = 3, BorderId = 0, FillId = 0 });
+            styles.CellFormats.AppendChild(new CellFormat { FormatId = 0, FontId = 3, BorderId = 0, FillId = 0 });
+            
             //normal-currency
             styles.CellFormats.AppendChild(new CellFormat
             {

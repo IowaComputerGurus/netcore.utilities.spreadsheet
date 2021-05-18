@@ -23,11 +23,26 @@ To setup the needed dependency injection items for this library, add the followi
 services.UseIcgNetCoreUtilitiesSpreadsheet();
 ```
 
-## Creating Documents
+## Sample Single Document Export
 
-We are continuing to update this information.  For the quickest getting started guide please review the "samples" directory for samples.
+Exporting a single collection to a single excel file can be done very simply. 
 
-### Key Document Features
+```
+var exportGenerator = provider.GetService<ISpreadsheetGenerator>();
+var exportDefinition = new SpreadsheetConfiguration<SimpleExportData>
+{
+    RenderTitle = true,
+    DocumentTitle = "Sample Export of 100 Records",
+    RenderSubTitle = true,
+    DocumentSubTitle = "Showing the full options",
+    ExportData = GetSampleExportData(100),
+    WorksheetName = "Sample"
+};
+var fileContent = exportGenerator.CreateSingleSheetSpreadsheet(exportDefinition);
+System.IO.File.WriteAllBytes("Sample.xlsx", fileContent);
+```
+
+## Key Features
 This package is primarily geared towards the exporting of lists of objects into excel sheets.  The following key features are supported.
 
 * The ability to have one, or more, sheets of data exported
