@@ -154,32 +154,14 @@ namespace ICG.NetCore.Utilities.Spreadsheet
                 throw new ArgumentException("Document Sub Title is required when 'Render Sub Title' is true",
                     nameof(exportConfiguration.DocumentSubTitle));
 
-            //Create the package and render
+            //Setup a memory stream to hold the generated file
             using (var documentStream = new MemoryStream())
             {
-                //Create the document
-                var spreadsheetDocument =
-                    SpreadsheetDocument.Create(documentStream, SpreadsheetDocumentType.Workbook);
-
-                //Add the workbook
+                //Create the document & overall workbook
+                var spreadsheetDocument = SpreadsheetDocument.Create(documentStream, SpreadsheetDocumentType.Workbook);
                 var workbookPart = spreadsheetDocument.AddWorkbookPart();
                 workbookPart.Workbook = new Workbook();
-
-                //Add a worksheet to it
-                var worksheetPart = workbookPart.AddNewPart<WorksheetPart>();
-                var data = new SheetData();
-                worksheetPart.Worksheet = new Worksheet(data);
-
-                //Add the sheet to the workbook
-                var sheets = spreadsheetDocument.WorkbookPart.Workbook.AppendChild<Sheets>(new Sheets());
-                var sheet = new Sheet
-                {
-                    Id = spreadsheetDocument.WorkbookPart.GetIdOfPart(worksheetPart),
-                    SheetId = 1,
-                    Name = exportConfiguration.WorksheetName
-                };
-                sheets.Append(sheet);
-
+                
                 //Setup our styles
                 var stylesPart = spreadsheetDocument.WorkbookPart.AddNewPart<WorkbookStylesPart>();
                 stylesPart.Stylesheet = new Stylesheet();
@@ -247,9 +229,10 @@ namespace ICG.NetCore.Utilities.Spreadsheet
 
                 stylesPart.Stylesheet.CellFormats.Count = 4;
                 stylesPart.Stylesheet.Save();
-                
+
 
                 //Build out our sheet information
+                var data = new SheetData();
                 UInt32 currentRow = 1;
                 if (exportConfiguration.RenderTitle)
                 {
@@ -334,7 +317,25 @@ namespace ICG.NetCore.Utilities.Spreadsheet
 
                 //Auto-size
                 Columns columns = AutoSize(data);
-                //worksheetPart.Worksheet.Append(columns);
+
+                //Assemble the full document now with our properly sized/formatted sheet
+                
+
+                //Add a worksheet to it
+                var worksheetPart = workbookPart.AddNewPart<WorksheetPart>();
+                worksheetPart.Worksheet = new Worksheet();
+                worksheetPart.Worksheet.Append(columns);
+                worksheetPart.Worksheet.Append(data);
+
+                //Add the sheet to the workbook
+                var sheets = spreadsheetDocument.WorkbookPart.Workbook.AppendChild<Sheets>(new Sheets());
+                var sheet = new Sheet
+                {
+                    Id = spreadsheetDocument.WorkbookPart.GetIdOfPart(worksheetPart),
+                    SheetId = 1,
+                    Name = exportConfiguration.WorksheetName
+                };
+                sheets.Append(sheet);
 
                 workbookPart.Workbook.Save();
                 spreadsheetDocument.Close();
