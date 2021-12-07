@@ -1,7 +1,8 @@
 # NetCore.Utilities.Spreadsheet ![](https://img.shields.io/github/license/iowacomputergurus/netcore.utilities.spreadsheet.svg)
-A utility to assist in creating Excel spreadsheets in .NET Core and ASP.NET Core applications using the OpenXML library.  This utility allows you to export collections of
-.NET Objects to Excel by simply adding metadata information regarding the desired column formats, title etc.  Allowing quick & consistent excel exports, without the hassle of trying
-to understand the OpenXML format
+
+![Build Status](https://github.com/IowaComputerGurus/netcore.utilities.spreadsheet/actions/workflows/ci-build.yml/badge.svg)
+
+A utility to assist in creating Excel spreadsheets in .NET Core and ASP.NET Core applications using the OpenXML library.  This utility allows you to export collections of .NET Objects to Excel by simply adding metadata information regarding the desired column formats, title etc.  Allowing quick & consistent excel exports, without the hassle of trying to understand the OpenXML format
 
 ## NuGet Package Information
 ICG.NetCore.Utilities.Spreadsheet ![](https://img.shields.io/nuget/v/icg.netcore.utilities.spreadsheet.svg) ![](https://img.shields.io/nuget/dt/icg.netcore.utilities.spreadsheet.svg)
@@ -13,13 +14,13 @@ This project depends on the DocumentFormat.OpenXml NuGet package provided by the
 
 ## Installation
 Standard installation via NuGet Package Manager
-```
+``` powershell
 Install-Package ICG.NetCore.Utilities.Spreadsheet
 ```
 
 ## Setup
 To setup the needed dependency injection items for this library, add the following line in your DI setup.
-```
+``` csharp
 services.UseIcgNetCoreUtilitiesSpreadsheet();
 ```
 
@@ -27,7 +28,7 @@ services.UseIcgNetCoreUtilitiesSpreadsheet();
 
 Exporting a single collection to a single excel file can be done very simply. 
 
-```
+```csharp
 var exportGenerator = provider.GetService<ISpreadsheetGenerator>();
 var exportDefinition = new SpreadsheetConfiguration<SimpleExportData>
 {
