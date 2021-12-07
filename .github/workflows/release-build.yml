@@ -1,0 +1,42 @@
+name: Release Build
+
+on:
+  push:
+    tags: 
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build & Publish to NuGet
+    environment: nuget
+    env:
+      solution-path: './src/NetCore.Utilities.Spreadsheet.sln'
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Ensure .NET Installed
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+        
+    - name: Install GitVersion
+      run: dotnet tool install --global GitVersion.Tool
+
+    - name: Determine Version
+      id: gitversion
+      uses: gittools/actions/gitversion/execute@v0.9.7
+      with:
+        useConfigFile: true 
+      
+    - name: Restore Packages
+      run: dotnet restore "${{ env.solution-path }}"
+    - name: Build
+      run: dotnet build "${{ env.solution-path }}" --no-restore --configuration Release -p:version=${{ steps.gitversion.outputs.majorMinorPatch }}
+    - name: Test
+      run: dotnet test "${{ env.solution-path }}" --no-build --configuration Release
+    
+    - name: Publish
+      run: nuget push **\*.nupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{secrets.ICG_NUGET_API_KEY}}

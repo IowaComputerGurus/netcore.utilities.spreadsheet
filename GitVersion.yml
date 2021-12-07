@@ -1,0 +1,19 @@
+mode: ContinuousDeployment
+next-version: 5.1.4
+branches: 
+  develop:
+    regex: develop
+    tag: 'alpha'
+    increment: Patch
+    source-branches: []
+  pull-request:
+    regex: (pull|pull\-requests|pr)[/-]
+    tag: 'pr'
+    tag-number-pattern: '[/-](?<number>\d+)[-/]'
+    increment: Patch
+    prevent-increment-of-merged-branch-version: false
+    is-release-branch: false
+    source-branches: []
+ignore:
+  sha: []
+merge-message-formats: {}
