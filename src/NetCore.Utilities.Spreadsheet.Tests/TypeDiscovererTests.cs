@@ -1,0 +1,137 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using FluentAssertions;
+using Xunit;
+// ReSharper disable InconsistentNaming
+
+namespace ICG.NetCore.Utilities.Spreadsheet.Tests
+{
+    public class TypeDiscovererTests
+    {
+        private class Sets_DisplayName_From_Annotation_If_Present_TestCase
+        {
+            [DisplayName("Some Prop Name")]
+            public string SomeProp { get; set; }
+        }
+
+        private class Sets_DisplayName_From_Property_Name_If_No_Annotation_TestCase
+        {
+            public string SomeProp { get; set; }
+        }
+
+        private class Sets_DisplayName_From_SpreadsheetColumn_Attribute_TestCase
+        {
+            [SpreadsheetColumn(displayName: "Some Prop Name")]
+            public string SomeProp { get; set; }
+        }
+
+        private class Property_Excluded_From_SpreadsheetColumn_Attribute_TestCase
+        {
+            [SpreadsheetColumn(ignore: true)]
+            public string Ignored { get; set; }
+            public string RealColumn { get; set; }
+        }
+
+        private class Property_Excluded_From_SpreadsheetIgnore_Attribute_TestCase
+        {
+            [SpreadsheetIgnore]
+            public string Ignored { get; set; }
+            public string RealColumn { get; set; }
+        }
+
+        private class Width_Is_Set_From_SpreadsheetColumn_Attribute_TestCase
+        {
+            [SpreadsheetColumn(width: 100)]
+            public string Column { get; set; }
+        }
+
+        private class Format_Is_Set_From_SpreadsheetColumn_Attribute_TestCase
+        {
+            [SpreadsheetColumn(format: "c")]
+            public string Column { get; set; }
+        }
+
+        public class Format_Is_Set_From_SpreadsheetColumnFormat_Attribute_TestCase
+        {
+            [SpreadsheetColumnFormat("c")]
+            public string Column { get; set; }
+        }
+
+        [Fact]
+        public void Sets_DisplayName_From_Annotation_If_Present()
+        {
+            var results = TypeDiscoverer.GetProps(typeof(Sets_DisplayName_From_Annotation_If_Present_TestCase));
+
+            results.Should().HaveCount(1);
+
+            results.First().DisplayName.Should().Be("Some Prop Name");
+        }
+
+        [Fact]
+        public void Sets_DisplayName_From_Property_Name_If_No_Annotation()
+        {
+            var results = TypeDiscoverer.GetProps(typeof(Sets_DisplayName_From_Property_Name_If_No_Annotation_TestCase));
+
+            results.Should().HaveCount(1);
+
+            results.First().DisplayName.Should().Be("Some Prop");
+        }
+
+        [Fact]
+        public void Sets_DisplayName_From_SpreadsheetColumn_Attribute()
+        {
+            var results = TypeDiscoverer.GetProps(typeof(Sets_DisplayName_From_SpreadsheetColumn_Attribute_TestCase));
+
+            results.Should().HaveCount(1);
+
+            results.First().DisplayName.Should().Be("Some Prop Name");
+        }
+
+        [Fact]
+        public void Property_Excluded_From_SpreadsheetIgnore_Attribute()
+        {
+            var results = TypeDiscoverer.GetProps(typeof(Property_Excluded_From_SpreadsheetColumn_Attribute_TestCase));
+
+            results.Should().HaveCount(1);
+
+            results.Should().NotContain(d => d.DisplayName == "Ignored");
+            results.Should().Contain(d => d.DisplayName == "Real Column");
+        }
+
+        [Fact]
+        public void Property_Excluded_From_SpreadsheetColumn_Attribute()
+        {
+            var results = TypeDiscoverer.GetProps(typeof(Property_Excluded_From_SpreadsheetIgnore_Attribute_TestCase));
+
+            results.Should().HaveCount(1);
+
+            results.Should().NotContain(d => d.DisplayName == "Ignored");
+            results.Should().Contain(d => d.DisplayName == "Real Column");
+        }
+
+        [Fact]
+        public void Width_Is_Set_From_SpreadsheetColumn_Attribute()
+        {
+            var results = TypeDiscoverer.GetProps(typeof(Width_Is_Set_From_SpreadsheetColumn_Attribute_TestCase));
+            results.First().Width.Should().Be(100);
+        }
+
+        [Fact]
+        public void Format_Is_Set_From_SpreadsheetColumn_Attribute()
+        {
+            var results = TypeDiscoverer.GetProps(typeof(Format_Is_Set_From_SpreadsheetColumn_Attribute_TestCase));
+            results.First().Format.Should().Be("c");
+        }
+
+        [Fact]
+        public void Format_Is_Set_From_SpreadsheetColumnFormat_Attribute()
+        {
+            var results = TypeDiscoverer.GetProps(typeof(Format_Is_Set_From_SpreadsheetColumnFormat_Attribute_TestCase));
+            results.First().Format.Should().Be("c");
+        }
+    }
+}

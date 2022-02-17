@@ -53,6 +53,11 @@ namespace ICG.NetCore.Utilities.Spreadsheet
         /// </summary>
         /// <value>The name of the worksheet.</value>
         string WorksheetName { get; set; }
+
+        /// <summary>
+        /// Controls if the columns are auto-sized
+        /// </summary>
+        public bool AutoSizeColumns { get; set; }
     }
 
     /// <summary>
@@ -102,5 +107,9 @@ namespace ICG.NetCore.Utilities.Spreadsheet
         /// </summary>
         /// <value>The name of the worksheet.</value>
         public string WorksheetName { get; set; }
+
+
+        /// <inheritdoc />
+        public bool AutoSizeColumns { get; set; } = true;
     }
 }
