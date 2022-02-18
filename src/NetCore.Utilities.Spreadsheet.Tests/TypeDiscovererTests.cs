@@ -36,13 +36,6 @@ namespace ICG.NetCore.Utilities.Spreadsheet.Tests
             public string RealColumn { get; set; }
         }
 
-        private class Property_Excluded_From_SpreadsheetIgnore_Attribute_TestCase
-        {
-            [SpreadsheetIgnore]
-            public string Ignored { get; set; }
-            public string RealColumn { get; set; }
-        }
-
         private class Width_Is_Set_From_SpreadsheetColumn_Attribute_TestCase
         {
             [SpreadsheetColumn(width: 100)]
@@ -95,17 +88,6 @@ namespace ICG.NetCore.Utilities.Spreadsheet.Tests
         public void Property_Excluded_From_SpreadsheetIgnore_Attribute()
         {
             var results = TypeDiscoverer.GetProps(typeof(Property_Excluded_From_SpreadsheetColumn_Attribute_TestCase));
-
-            results.Should().HaveCount(1);
-
-            results.Should().NotContain(d => d.DisplayName == "Ignored");
-            results.Should().Contain(d => d.DisplayName == "Real Column");
-        }
-
-        [Fact]
-        public void Property_Excluded_From_SpreadsheetColumn_Attribute()
-        {
-            var results = TypeDiscoverer.GetProps(typeof(Property_Excluded_From_SpreadsheetIgnore_Attribute_TestCase));
 
             results.Should().HaveCount(1);
 

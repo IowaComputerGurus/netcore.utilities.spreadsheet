@@ -38,13 +38,9 @@ namespace ICG.NetCore.Utilities.Spreadsheet
                 var ignored = false;
                 foreach (var attr in p.Attributes)
                 {
+#pragma warning disable CS0618 // Type or member is obsolete
                     switch (attr)
                     {
-                        case SpreadsheetIgnoreAttribute _:
-                            // Since we're ignoring this column, don't need to do anything else
-                            ignored = true;
-                            continue;
-                            break;
                         case SpreadsheetColumnFormatAttribute cfa:
                             format = cfa.Format;
                             break;
@@ -59,6 +55,7 @@ namespace ICG.NetCore.Utilities.Spreadsheet
                             width = sca.Width;
                             break;
                     }
+#pragma warning restore CS0618 // Type or member is obsolete
                 }
 
                 if (ignored) continue;

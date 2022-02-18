@@ -184,8 +184,6 @@ namespace ICG.NetCore.Utilities.Spreadsheet
             UInt32 currentRow = 1;
 
             columns = new Columns();
-            //var columnMap = new Dictionary<PropDetail, Column>();
-            //var cellMap = new Dictionary<PropDetail, List<Cell>>();
 
             var outputMap = new Dictionary<PropDetail, OutputPropMap>();
             if (exportConfiguration.RenderTitle)
@@ -381,15 +379,12 @@ namespace ICG.NetCore.Utilities.Spreadsheet
         }
 
 
-        private void CalculateSizes(IList<OutputPropMap> propMap)
+        private static void CalculateSizes(IList<OutputPropMap> propMap)
         {
             //Adapted from - https://stackoverflow.com/questions/18268620/openxml-auto-size-column-width-in-excel
-
-            var columns = new Columns();
-
             //This is an approximation of the size needed for the largest single character in Calibri 
             double maxWidth = 7;
-            foreach (var (prop, col , cells) in propMap)
+            foreach (var (_, col , cells) in propMap)
             {
                 var rawWidth = GetMaxCharacterWidth(cells);
                 //width = Truncate([{Number of Characters} * {Maximum Digit Width} + {5 pixel padding}]/{Maximum Digit Width}*256)/256
@@ -399,7 +394,7 @@ namespace ICG.NetCore.Utilities.Spreadsheet
             }
         }
 
-        private int GetMaxCharacterWidth(IList<Cell> cells)
+        private static int GetMaxCharacterWidth(IList<Cell> cells)
         {
             //iterate over all cells getting a max char value for each column
             var maxWidth = 0;

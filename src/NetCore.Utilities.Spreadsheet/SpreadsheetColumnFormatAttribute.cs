@@ -6,6 +6,7 @@ namespace ICG.NetCore.Utilities.Spreadsheet
     ///     Using this custom attribute you are able to specify a column format for Spreadsheet exporting
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
+    [Obsolete("Use SpreadsheetColumn instead")]
     public class SpreadsheetColumnFormatAttribute : Attribute
     {
         /// <summary>
