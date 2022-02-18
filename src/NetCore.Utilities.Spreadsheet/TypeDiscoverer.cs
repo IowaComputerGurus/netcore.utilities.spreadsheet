@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace ICG.NetCore.Utilities.Spreadsheet
 {
     internal record PropDetail(
+        int Order,
         PropertyDescriptor Descriptor,
         string DisplayName,
         string Format,
@@ -25,10 +24,9 @@ namespace ICG.NetCore.Utilities.Spreadsheet
         {
             var properties = TypeDescriptor.GetProperties(t);
             var details = new List<PropDetail>();
-
+            var columnOrder = 1;
             var width = 0f;
             var format = "";
-
             foreach (PropertyDescriptor p in properties)
             {
                 var propName = p.DisplayName;
@@ -65,7 +63,8 @@ namespace ICG.NetCore.Utilities.Spreadsheet
 
                 if (ignored) continue;
 
-                details.Add(new PropDetail(p, propName, format, width));
+                details.Add(new PropDetail(columnOrder, p, propName, format, width));
+                columnOrder++;
             }
 
             return details;

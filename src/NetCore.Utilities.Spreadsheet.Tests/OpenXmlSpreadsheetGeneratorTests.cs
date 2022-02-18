@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using Bogus;
+using FluentAssertions;
 using Xunit;
 
 namespace ICG.NetCore.Utilities.Spreadsheet.Tests
@@ -103,6 +106,30 @@ namespace ICG.NetCore.Utilities.Spreadsheet.Tests
 
             //Assert
             Assert.Equal("exportSheets", actualResult.ParamName);
+        }
+
+        [Fact]
+        public void CreateSingleWorksheet_Should_Work()
+        {
+            var id = 1;
+            var testRecord = new Faker<TestExportRecord>()
+                .UseSeed(42)
+                .RuleFor(o => o.Id, f => id++)
+                .RuleFor(o => o.Name, f => f.Name.FullName())
+                .RuleFor(o => o.Amount, f => f.Random.Double(0, 10))
+                .RuleFor(o => o.Date, f => f.Date.Soon());
+
+            var result = _spreadsheetGenerator.CreateSingleSheetSpreadsheet(new SpreadsheetConfiguration<TestExportRecord>()
+            {
+                WorksheetName = "Test Sheet",
+                AutoSizeColumns = false,
+                ExportData = testRecord.Generate(10)
+            });
+
+            result.Length.Should().BeGreaterThan(0);
+
+            var sheetPath = Path.Join(Path.GetTempPath(), $"createsingleworksheet_should_work_{DateTime.Now:yyyyMMddHHmmssfff}.xlsx");
+            File.WriteAllBytes(sheetPath, result);
         }
     }
 }

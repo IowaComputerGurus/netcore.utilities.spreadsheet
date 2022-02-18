@@ -163,11 +163,31 @@ namespace ICG.NetCore.Utilities.Spreadsheet
             }
         }
 
+        private static Cell CellFromValue(Type t, object itemValue) => t switch
+        {
+            _ when t == typeof(int) => new Cell { CellValue = new CellValue((int)itemValue), DataType = CellValues.Number },
+            _ when t == typeof(decimal) => new Cell { CellValue = new CellValue((decimal)itemValue), DataType = CellValues.Number },
+            _ when t == typeof(double) => new Cell { CellValue = new CellValue((double)itemValue), DataType = CellValues.Number },
+            _ when t == typeof(long) => new Cell { CellValue = new CellValue((decimal)itemValue), DataType = CellValues.Number }, //There is no constructor for longs
+            _ when t == typeof(float) => new Cell { CellValue = new CellValue((float)itemValue), DataType = CellValues.Number },
+            _ when t == typeof(DateTime) => new Cell { CellValue = new CellValue((DateTime)itemValue), DataType = CellValues.Date },
+            _ when t == typeof(DateTimeOffset) => new Cell { CellValue = new CellValue((DateTimeOffset)itemValue), DataType = CellValues.Date },
+            _ => new Cell { CellValue = new CellValue(itemValue.ToString()), DataType = CellValues.String },
+        };
+
+        private record OutputPropMap(PropDetail PropDetail, Column Column, List<Cell> Cells);
+
         private SheetData CreateExportSheet(ISpreadsheetConfiguration<object> exportConfiguration, out Columns columns)
         {
             //Build out our sheet information
             var data = new SheetData();
             UInt32 currentRow = 1;
+
+            columns = new Columns();
+            //var columnMap = new Dictionary<PropDetail, Column>();
+            //var cellMap = new Dictionary<PropDetail, List<Cell>>();
+
+            var outputMap = new Dictionary<PropDetail, OutputPropMap>();
             if (exportConfiguration.RenderTitle)
             {
                 var row = new Row { RowIndex = 1 };
@@ -205,6 +225,16 @@ namespace ICG.NetCore.Utilities.Spreadsheet
             var headerRow = new Row { RowIndex = currentRow };
             foreach (var prop in headerProperties)
             {
+                var column = new Column()
+                {
+                    Min = (uint)prop.Order,
+                    Max = (uint)prop.Order,
+                    BestFit = true,
+                    Width = prop.Width > 0 ? prop.Width : 10
+                };
+                columns.Append(column);
+                outputMap[prop] = new OutputPropMap(prop, column, new List<Cell>());
+
                 var headerCell = new Cell
                 {
                     CellValue = new CellValue(prop.DisplayName),
@@ -224,23 +254,17 @@ namespace ICG.NetCore.Utilities.Spreadsheet
                 foreach (var prop in headerProperties)
                 {
                     var itemValue = prop.Descriptor.GetValue(item);
-                    var dataCell = new Cell
-                    {
-                        CellValue = new CellValue(itemValue?.ToString()),
-                        DataType = CellValues.String
-                    };
+                    var dataCell = CellFromValue(prop.Descriptor.PropertyType, itemValue);
+
                     if (prop.Format == "c")
                     {
                         dataCell.StyleIndex = (int)FontStyleIndex.NormalCurrency;
-                        dataCell.DataType = CellValues.Number;
-                        dataCell.CellValue = new CellValue(decimal.Parse(itemValue?.ToString()));
                     }
                     else if (prop.Format == "d") //Date
                     {
                         dataCell.StyleIndex = (int)FontStyleIndex.NormalDate;
-                        dataCell.CellValue = new CellValue(DateTime.Parse(itemValue.ToString()).ToShortDateString());
                     }
-
+                    outputMap[prop].Cells.Add(dataCell);
                     dataRow.Append(dataCell);
                 }
 
@@ -249,7 +273,12 @@ namespace ICG.NetCore.Utilities.Spreadsheet
             }
 
             //Auto-size
-            columns = AutoSize(data);
+            //columns = AutoSize(data);
+
+            if (exportConfiguration.AutoSizeColumns)
+            {
+                CalculateSizes(outputMap.Values.ToList());
+            }
             return data;
         }
 
@@ -352,83 +381,60 @@ namespace ICG.NetCore.Utilities.Spreadsheet
         }
 
 
-        private Columns AutoSize(SheetData sheetData)
+        private void CalculateSizes(IList<OutputPropMap> propMap)
         {
             //Adapted from - https://stackoverflow.com/questions/18268620/openxml-auto-size-column-width-in-excel
-            var maxColWidth = GetMaxCharacterWidth(sheetData);
 
             var columns = new Columns();
 
             //This is an approximation of the size needed for the largest single character in Calibri 
             double maxWidth = 7;
-            foreach (var item in maxColWidth)
+            foreach (var (prop, col , cells) in propMap)
             {
+                var rawWidth = GetMaxCharacterWidth(cells);
                 //width = Truncate([{Number of Characters} * {Maximum Digit Width} + {5 pixel padding}]/{Maximum Digit Width}*256)/256
-                var width = Math.Truncate((item.Value * maxWidth + 5) / maxWidth * 256) / 256;
-
-                var col = new Column()
-                {
-                    BestFit = true,
-                    Min = (UInt32)(item.Key + 1),
-                    Max = (UInt32)(item.Key + 1),
-                    CustomWidth = true,
-                    Width = (DoubleValue)width
-                };
-                columns.Append(col);
+                var width = Math.Truncate((rawWidth * maxWidth + 5) / maxWidth * 256) / 256;
+                col.CustomWidth = true;
+                col.Width = width;
             }
-
-            return columns;
         }
 
-        private Dictionary<int, int> GetMaxCharacterWidth(SheetData sheetData)
+        private int GetMaxCharacterWidth(IList<Cell> cells)
         {
             //iterate over all cells getting a max char value for each column
-            var maxColWidth = new Dictionary<int, int>();
-            var rows = sheetData.Elements<Row>();
+            var maxWidth = 0;
+
             //TODO: Be smarter about this for our set styles
             var numberStyles = new UInt32[] { 5, 6, 7, 8 }; //styles that will add extra chars
             var boldStyles = new UInt32[] { 1, 2, 3, 4, 6, 7, 8 }; //styles that will bold
-            foreach (var r in rows)
+
+            //using cell index as my column
+            foreach (var cell in cells)
             {
-                var cells = r.Elements<Cell>().ToArray();
+                var cellValue = cell.CellValue == null ? string.Empty : cell.CellValue.InnerText;
+                var cellTextLength = cellValue.Length;
 
-                //using cell index as my column
-                for (int i = 0; i < cells.Length; i++)
+                if (cell.StyleIndex != null && numberStyles.Contains(cell.StyleIndex))
                 {
-                    var cell = cells[i];
-                    var cellValue = cell.CellValue == null ? string.Empty : cell.CellValue.InnerText;
-                    var cellTextLength = cellValue.Length;
+                    int thousandCount = (int)Math.Truncate((double)cellTextLength / 4);
 
-                    if (cell.StyleIndex != null && numberStyles.Contains(cell.StyleIndex))
-                    {
-                        int thousandCount = (int)Math.Truncate((double)cellTextLength / 4);
+                    //add 3 for '.00' 
+                    cellTextLength += (3 + thousandCount);
+                }
 
-                        //add 3 for '.00' 
-                        cellTextLength += (3 + thousandCount);
-                    }
+                if (cell.StyleIndex != null && boldStyles.Contains(cell.StyleIndex))
+                {
+                    //add an extra char for bold - not 100% acurate but good enough for what i need.
+                    cellTextLength += 1;
+                }
 
-                    if (cell.StyleIndex != null && boldStyles.Contains(cell.StyleIndex))
-                    {
-                        //add an extra char for bold - not 100% acurate but good enough for what i need.
-                        cellTextLength += 1;
-                    }
-
-                    if (maxColWidth.ContainsKey(i))
-                    {
-                        var current = maxColWidth[i];
-                        if (cellTextLength > current)
-                        {
-                            maxColWidth[i] = cellTextLength;
-                        }
-                    }
-                    else
-                    {
-                        maxColWidth.Add(i, cellTextLength);
-                    }
+                if (cellTextLength > maxWidth)
+                {
+                    maxWidth = cellTextLength;
                 }
             }
 
-            return maxColWidth;
+            return maxWidth;
         }
     }
 }
