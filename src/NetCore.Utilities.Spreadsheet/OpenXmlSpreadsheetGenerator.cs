@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using DocumentFormat.OpenXml;
@@ -41,7 +40,7 @@ namespace ICG.NetCore.Utilities.Spreadsheet
                 foreach (var item in exportSheets)
                 {
                     var typeDetail = item.DataType;
-                    var data = CreateExportMultiSheet(item, out var columns);
+                    var data = CreateExportSheet(item, out var columns);
 
                     //Add a worksheet to our document
                     var worksheetPart = workbookPart.AddNewPart<WorksheetPart>();
@@ -59,7 +58,6 @@ namespace ICG.NetCore.Utilities.Spreadsheet
                     sheets.Append(sheet);
                     sheetId++;
                 }
-
                 //Save off the file
                 workbookPart.Workbook.Save();
                 spreadsheetDocument.Close();
@@ -96,7 +94,7 @@ namespace ICG.NetCore.Utilities.Spreadsheet
             /// </summary>
             NormalCurrency = 4,
             /// <summary>
-            /// Normal font formated for date
+            /// Normal font formatted for date
             /// </summary>
             NormalDate = 5
         }
@@ -131,12 +129,12 @@ namespace ICG.NetCore.Utilities.Spreadsheet
                 var spreadsheetDocument = SpreadsheetDocument.Create(documentStream, SpreadsheetDocumentType.Workbook);
                 var workbookPart = spreadsheetDocument.AddWorkbookPart();
                 workbookPart.Workbook = new Workbook();
-                
+
                 //Setup our styles
                 var stylesPart = spreadsheetDocument.WorkbookPart.AddNewPart<WorkbookStylesPart>();
                 stylesPart.Stylesheet = CreateStylesheet();
                 stylesPart.Stylesheet.Save();
-                
+
                 var data = CreateExportSheet(exportConfiguration, out var columns);
 
                 //Add a worksheet to our document
@@ -164,131 +162,29 @@ namespace ICG.NetCore.Utilities.Spreadsheet
             }
         }
 
-        /// <summary>
-        /// Creates an exported sheet of a specific configuration
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="exportConfiguration"></param>
-        /// <param name="columns"></param>
-        /// <returns></returns>
-        private SheetData CreateExportSheet<T>(SpreadsheetConfiguration<T> exportConfiguration, out Columns columns) where T : class
+        private static Cell CellFromValue(Type t, object itemValue) => t switch
+        {
+            _ when t == typeof(int) => new Cell { CellValue = new CellValue((int)itemValue), DataType = CellValues.Number },
+            _ when t == typeof(decimal) => new Cell { CellValue = new CellValue((decimal)itemValue), DataType = CellValues.Number },
+            _ when t == typeof(double) => new Cell { CellValue = new CellValue((double)itemValue), DataType = CellValues.Number },
+            _ when t == typeof(long) => new Cell { CellValue = new CellValue((decimal)itemValue), DataType = CellValues.Number }, //There is no constructor for longs
+            _ when t == typeof(float) => new Cell { CellValue = new CellValue((float)itemValue), DataType = CellValues.Number },
+            _ when t == typeof(DateTime) => new Cell { CellValue = new CellValue((DateTime)itemValue), DataType = CellValues.Date },
+            _ when t == typeof(DateTimeOffset) => new Cell { CellValue = new CellValue((DateTimeOffset)itemValue), DataType = CellValues.Date },
+            _ => new Cell { CellValue = new CellValue(itemValue.ToString()), DataType = CellValues.String },
+        };
+
+        private record OutputPropMap(PropDetail PropDetail, Column Column, List<Cell> Cells);
+
+        private SheetData CreateExportSheet(ISpreadsheetConfiguration<object> exportConfiguration, out Columns columns)
         {
             //Build out our sheet information
             var data = new SheetData();
             UInt32 currentRow = 1;
-            if (exportConfiguration.RenderTitle)
-            {
-                var row = new Row {RowIndex = 1};
-                var headerCell = new Cell
-                {
-                    CellReference = $"A{currentRow}",
-                    CellValue = new CellValue(exportConfiguration.DocumentTitle),
-                    DataType = CellValues.String,
-                    StyleIndex = (int) FontStyleIndex.Header
-                };
-                row.Append(headerCell);
-                data.Append(row);
-                //Increment row
-                currentRow++;
-            }
 
-            if (exportConfiguration.RenderSubTitle)
-            {
-                var row = new Row {RowIndex = currentRow};
-                var headerCell = new Cell
-                {
-                    CellReference = $"A{currentRow}",
-                    CellValue = new CellValue(exportConfiguration.DocumentSubTitle),
-                    DataType = CellValues.String,
-                    StyleIndex = (int) FontStyleIndex.SubHeader
-                };
-                row.Append(headerCell);
-                data.Append(row);
-                //Increment row
-                currentRow++;
-            }
+            columns = new Columns();
 
-            //Run data headers
-            var headerProperties = TypeDescriptor.GetProperties(typeof(T));
-            var headerRow = new Row {RowIndex = currentRow};
-            var customFormats = new Dictionary<string, UInt32Value>();
-            foreach (PropertyDescriptor prop in headerProperties)
-            {
-                var headerCell = new Cell
-                {
-                    CellValue = new CellValue(prop.DisplayName),
-                    DataType = CellValues.String,
-                    StyleIndex = (int) FontStyleIndex.DataHeader
-                };
-                headerRow.Append(headerCell);
-
-                //Handle formats
-                if (prop.Attributes.Count <= 0) continue;
-                foreach (var attribute in prop.Attributes)
-                {
-                    if (!(attribute is SpreadsheetColumnFormatAttribute detail))
-                        continue;
-
-                    switch (detail.Format.ToLowerInvariant())
-                    {
-                        case "d":
-                            customFormats.Add(prop.DisplayName, (int) FontStyleIndex.NormalDate);
-                            break;
-                        case "c":
-                            customFormats.Add(prop.DisplayName, (int)FontStyleIndex.NormalCurrency);
-                            break;
-                    }
-                    break;
-                }
-            }
-
-            data.Append(headerRow);
-            currentRow++;
-
-            //Run the data
-            foreach (var item in exportConfiguration.ExportData)
-            {
-                var dataRow = new Row {RowIndex = currentRow};
-                foreach (PropertyDescriptor prop in headerProperties)
-                {
-                    var itemValue = prop.GetValue(item);
-                    var dataCell = new Cell
-                    {
-                        CellValue = new CellValue(itemValue?.ToString()),
-                        DataType = CellValues.String
-                    };
-
-                    if (customFormats.ContainsKey(prop.DisplayName))
-                    {
-                        dataCell.StyleIndex = customFormats[prop.DisplayName];
-                        if (dataCell.StyleIndex == 4)
-                        {
-                            dataCell.DataType = CellValues.Number;
-                            dataCell.CellValue = new CellValue(decimal.Parse(itemValue?.ToString()));
-                        }
-                        else if (dataCell.StyleIndex == 5) //Date
-                        {
-                            dataCell.CellValue = new CellValue(DateTime.Parse(itemValue.ToString()).ToShortDateString());
-                        }
-                    }
-
-                    dataRow.Append(dataCell);
-                }
-
-                data.Append(dataRow);
-                currentRow++;
-            }
-
-            //Auto-size
-            columns = AutoSize(data);
-            return data;
-        }
-
-        private SheetData CreateExportMultiSheet(ISpreadsheetConfiguration<object> exportConfiguration, out Columns columns)
-        {
-            //Build out our sheet information
-            var data = new SheetData();
-            UInt32 currentRow = 1;
+            var outputMap = new Dictionary<PropDetail, OutputPropMap>();
             if (exportConfiguration.RenderTitle)
             {
                 var row = new Row { RowIndex = 1 };
@@ -322,11 +218,20 @@ namespace ICG.NetCore.Utilities.Spreadsheet
             }
 
             //Run data headers
-            var headerProperties = TypeDescriptor.GetProperties(exportConfiguration.DataType);
+            var headerProperties = TypeDiscoverer.GetProps(exportConfiguration.DataType);
             var headerRow = new Row { RowIndex = currentRow };
-            var customFormats = new Dictionary<string, UInt32Value>();
-            foreach (PropertyDescriptor prop in headerProperties)
+            foreach (var prop in headerProperties)
             {
+                var column = new Column()
+                {
+                    Min = (uint)prop.Order,
+                    Max = (uint)prop.Order,
+                    BestFit = true,
+                    Width = prop.Width > 0 ? prop.Width : 10
+                };
+                columns.Append(column);
+                outputMap[prop] = new OutputPropMap(prop, column, new List<Cell>());
+
                 var headerCell = new Cell
                 {
                     CellValue = new CellValue(prop.DisplayName),
@@ -334,25 +239,6 @@ namespace ICG.NetCore.Utilities.Spreadsheet
                     StyleIndex = (int)FontStyleIndex.DataHeader
                 };
                 headerRow.Append(headerCell);
-
-                //Handle formats
-                if (prop.Attributes.Count <= 0) continue;
-                foreach (var attribute in prop.Attributes)
-                {
-                    if (!(attribute is SpreadsheetColumnFormatAttribute detail))
-                        continue;
-
-                    switch (detail.Format.ToLowerInvariant())
-                    {
-                        case "d":
-                            customFormats.Add(prop.DisplayName, (int)FontStyleIndex.NormalDate);
-                            break;
-                        case "c":
-                            customFormats.Add(prop.DisplayName, (int)FontStyleIndex.NormalCurrency);
-                            break;
-                    }
-                    break;
-                }
             }
 
             data.Append(headerRow);
@@ -362,29 +248,20 @@ namespace ICG.NetCore.Utilities.Spreadsheet
             foreach (var item in exportConfiguration.ExportData)
             {
                 var dataRow = new Row { RowIndex = currentRow };
-                foreach (PropertyDescriptor prop in headerProperties)
+                foreach (var prop in headerProperties)
                 {
-                    var itemValue = prop.GetValue(item);
-                    var dataCell = new Cell
-                    {
-                        CellValue = new CellValue(itemValue?.ToString()),
-                        DataType = CellValues.String
-                    };
+                    var itemValue = prop.Descriptor.GetValue(item);
+                    var dataCell = CellFromValue(prop.Descriptor.PropertyType, itemValue);
 
-                    if (customFormats.ContainsKey(prop.DisplayName))
+                    if (prop.Format == "c")
                     {
-                        dataCell.StyleIndex = customFormats[prop.DisplayName];
-                        if (dataCell.StyleIndex == 4)
-                        {
-                            dataCell.DataType = CellValues.Number;
-                            dataCell.CellValue = new CellValue(decimal.Parse(itemValue?.ToString()));
-                        }
-                        else if (dataCell.StyleIndex == 5) //Date
-                        {
-                            dataCell.CellValue = new CellValue(DateTime.Parse(itemValue.ToString()).ToShortDateString());
-                        }
+                        dataCell.StyleIndex = (int)FontStyleIndex.NormalCurrency;
                     }
-
+                    else if (prop.Format == "d") //Date
+                    {
+                        dataCell.StyleIndex = (int)FontStyleIndex.NormalDate;
+                    }
+                    outputMap[prop].Cells.Add(dataCell);
                     dataRow.Append(dataCell);
                 }
 
@@ -393,7 +270,12 @@ namespace ICG.NetCore.Utilities.Spreadsheet
             }
 
             //Auto-size
-            columns = AutoSize(data);
+            //columns = AutoSize(data);
+
+            if (exportConfiguration.AutoSizeColumns)
+            {
+                CalculateSizes(outputMap.Values.ToList());
+            }
             return data;
         }
 
@@ -455,8 +337,8 @@ namespace ICG.NetCore.Utilities.Spreadsheet
 
             styles.NumberingFormats = new NumberingFormats();
             styles.NumberingFormats.AppendChild(new NumberingFormat { NumberFormatId = 164, FormatCode = "\"$\"#,##0.00" });
-            styles.NumberingFormats.AppendChild(new NumberingFormat { NumberFormatId = 300, FormatCode = "MM/dd/yyyy"});
-            
+            styles.NumberingFormats.AppendChild(new NumberingFormat { NumberFormatId = 300, FormatCode = "MM/dd/yyyy" });
+
             // cell format list
             styles.CellFormats = new CellFormats();
 
@@ -464,13 +346,13 @@ namespace ICG.NetCore.Utilities.Spreadsheet
 
             //Header
             styles.CellFormats.AppendChild(new CellFormat { FormatId = 0, FontId = 1, BorderId = 0, FillId = 0 });//.AppendChild(new Alignment { Horizontal = HorizontalAlignmentValues.Center });
-            
+
             //Sub-header
             styles.CellFormats.AppendChild(new CellFormat { FormatId = 0, FontId = 2, BorderId = 0, FillId = 0 });
-            
+
             //Data-header
             styles.CellFormats.AppendChild(new CellFormat { FormatId = 0, FontId = 3, BorderId = 0, FillId = 0 });
-            
+
             //normal-currency
             styles.CellFormats.AppendChild(new CellFormat
             {
@@ -496,83 +378,57 @@ namespace ICG.NetCore.Utilities.Spreadsheet
         }
 
 
-        private Columns AutoSize(SheetData sheetData)
+        private static void CalculateSizes(IList<OutputPropMap> propMap)
         {
             //Adapted from - https://stackoverflow.com/questions/18268620/openxml-auto-size-column-width-in-excel
-            var maxColWidth = GetMaxCharacterWidth(sheetData);
-
-            var columns = new Columns();
-
             //This is an approximation of the size needed for the largest single character in Calibri 
             double maxWidth = 7;
-            foreach (var item in maxColWidth)
+            foreach (var (_, col , cells) in propMap)
             {
+                var rawWidth = GetMaxCharacterWidth(cells);
                 //width = Truncate([{Number of Characters} * {Maximum Digit Width} + {5 pixel padding}]/{Maximum Digit Width}*256)/256
-                var width = Math.Truncate((item.Value * maxWidth + 5) / maxWidth * 256) / 256;
-
-                var col = new Column()
-                {
-                    BestFit = true, 
-                    Min = (UInt32) (item.Key + 1), 
-                    Max = (UInt32) (item.Key + 1), 
-                    CustomWidth = true,
-                    Width = (DoubleValue) width
-                };
-                columns.Append(col);
+                var width = Math.Truncate((rawWidth * maxWidth + 5) / maxWidth * 256) / 256;
+                col.CustomWidth = true;
+                col.Width = width;
             }
-
-            return columns;
         }
 
-        private Dictionary<int, int> GetMaxCharacterWidth(SheetData sheetData)
+        private static int GetMaxCharacterWidth(IList<Cell> cells)
         {
             //iterate over all cells getting a max char value for each column
-            var maxColWidth = new Dictionary<int, int>();
-            var rows = sheetData.Elements<Row>();
+            var maxWidth = 0;
+
             //TODO: Be smarter about this for our set styles
             var numberStyles = new UInt32[] { 5, 6, 7, 8 }; //styles that will add extra chars
             var boldStyles = new UInt32[] { 1, 2, 3, 4, 6, 7, 8 }; //styles that will bold
-            foreach (var r in rows)
+
+            //using cell index as my column
+            foreach (var cell in cells)
             {
-                var cells = r.Elements<Cell>().ToArray();
+                var cellValue = cell.CellValue == null ? string.Empty : cell.CellValue.InnerText;
+                var cellTextLength = cellValue.Length;
 
-                //using cell index as my column
-                for (int i = 0; i < cells.Length; i++)
+                if (cell.StyleIndex != null && numberStyles.Contains(cell.StyleIndex))
                 {
-                    var cell = cells[i];
-                    var cellValue = cell.CellValue == null ? string.Empty : cell.CellValue.InnerText;
-                    var cellTextLength = cellValue.Length;
+                    int thousandCount = (int)Math.Truncate((double)cellTextLength / 4);
 
-                    if (cell.StyleIndex != null && numberStyles.Contains(cell.StyleIndex))
-                    {
-                        int thousandCount = (int)Math.Truncate((double)cellTextLength / 4);
+                    //add 3 for '.00' 
+                    cellTextLength += (3 + thousandCount);
+                }
 
-                        //add 3 for '.00' 
-                        cellTextLength += (3 + thousandCount);
-                    }
+                if (cell.StyleIndex != null && boldStyles.Contains(cell.StyleIndex))
+                {
+                    //add an extra char for bold - not 100% 
+                    cellTextLength += 1;
+                }
 
-                    if (cell.StyleIndex != null && boldStyles.Contains(cell.StyleIndex))
-                    {
-                        //add an extra char for bold - not 100% acurate but good enough for what i need.
-                        cellTextLength += 1;
-                    }
-
-                    if (maxColWidth.ContainsKey(i))
-                    {
-                        var current = maxColWidth[i];
-                        if (cellTextLength > current)
-                        {
-                            maxColWidth[i] = cellTextLength;
-                        }
-                    }
-                    else
-                    {
-                        maxColWidth.Add(i, cellTextLength);
-                    }
+                if (cellTextLength > maxWidth)
+                {
+                    maxWidth = cellTextLength;
                 }
             }
 
-            return maxColWidth;
+            return maxWidth;
         }
     }
 }

@@ -1,29 +1,29 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <RootNamespace>ICG.NetCore.Utilities.Spreadsheet</RootNamespace>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-  </PropertyGroup>
 
-  <PropertyGroup>
-    <PackageId>ICG.NetCore.Utilities.Spreadsheet</PackageId>
-    <Title>NetCore Utilities Spreadsheet</Title>
-    <Description>A library containing an easily reusable spreadsheet generation and parsing capability leveraging the OpenXml specification.</Description>
-    <Copyright>Copyright 2021, IowaComputerGurus All Rights Reserved</Copyright>
-    <PackageProjectUrl>https://github.com/IowaComputerGurus/netcore.utilities.spreadsheet</PackageProjectUrl>
-    <PackageTags>aspnetcore;utility;spreadsheet</PackageTags>
-    <RepositoryUrl>https://github.com/IowaComputerGurus/netcore.utilities.spreadsheet</RepositoryUrl>
-    <Authors>MitchelSellers;IowaComputerGurus</Authors>
-    <Owners>IowaComputerGurus</Owners>
-	<PackageIcon>icgAppIcon.png</PackageIcon>
-    <IsPackable>True</IsPackable>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<RootNamespace>ICG.NetCore.Utilities.Spreadsheet</RootNamespace>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<PackageId>ICG.NetCore.Utilities.Spreadsheet</PackageId>
+		<Title>NetCore Utilities Spreadsheet</Title>
+		<Description>A library containing an easily reusable spreadsheet generation and parsing capability leveraging the OpenXml specification.</Description>
+		<Copyright>Copyright 2021, IowaComputerGurus All Rights Reserved</Copyright>
+		<PackageProjectUrl>https://github.com/IowaComputerGurus/netcore.utilities.spreadsheet</PackageProjectUrl>
+		<PackageTags>aspnetcore;utility;spreadsheet</PackageTags>
+		<RepositoryUrl>https://github.com/IowaComputerGurus/netcore.utilities.spreadsheet</RepositoryUrl>
+		<Authors>MitchelSellers;IowaComputerGurus</Authors>
+		<Owners>IowaComputerGurus</Owners>
+		<PackageIcon>icgAppIcon.png</PackageIcon>
+		<IsPackable>True</IsPackable>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+	</PropertyGroup>
 
 	<PropertyGroup Condition="'$GITHUB_ACTIONS)' == 'true'">
 		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
@@ -32,14 +32,19 @@
 	<ItemGroup>
 		<None Include="icgAppIcon.png" Pack="true" PackagePath="\" />
 	</ItemGroup>
-	
-  <ItemGroup>
-    <PackageReference Include="DocumentFormat.OpenXml" Version="2.14.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
 
+	<ItemGroup>
+		<PackageReference Include="DocumentFormat.OpenXml" Version="2.14.0" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+			<_Parameter1>$(AssemblyName).Tests</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
 </Project>
