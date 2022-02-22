@@ -1,11 +1,10 @@
-﻿namespace ICG.NetCore.Utilities.Spreadsheet.Tests.ImportModel
-{
-    public class PersonRecord
-    {
-        [SpreadsheetImportColumn(1)]
-        public string Name { get; set; }
+﻿namespace ICG.NetCore.Utilities.Spreadsheet.Tests.ImportModel;
 
-        [SpreadsheetImportColumn(2)]
-        public int Age { get; set; }
-    }
+public class PersonRecord
+{
+    [SpreadsheetImportColumn(1)]
+    public string Name { get; set; }
+
+    [SpreadsheetImportColumn(2)]
+    public int Age { get; set; }
 }

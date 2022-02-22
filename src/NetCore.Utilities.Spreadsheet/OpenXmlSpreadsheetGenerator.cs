@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using DocumentFormat.OpenXml;
@@ -95,7 +94,7 @@ namespace ICG.NetCore.Utilities.Spreadsheet
             /// </summary>
             NormalCurrency = 4,
             /// <summary>
-            /// Normal font formated for date
+            /// Normal font formatted for date
             /// </summary>
             NormalDate = 5
         }
@@ -419,7 +418,7 @@ namespace ICG.NetCore.Utilities.Spreadsheet
 
                 if (cell.StyleIndex != null && boldStyles.Contains(cell.StyleIndex))
                 {
-                    //add an extra char for bold - not 100% acurate but good enough for what i need.
+                    //add an extra char for bold - not 100% 
                     cellTextLength += 1;
                 }
 
