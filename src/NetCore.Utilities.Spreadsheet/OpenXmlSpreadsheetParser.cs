@@ -51,13 +51,23 @@ public class OpenXmlSpreadsheetParser : ISpreadsheetParser
             var wsPart = workbookPart.GetPartById(sheet.Id) as WorksheetPart;
             var collection = new Collection<T>();
             var skipRows = skipHeaderRow ? 1 : 0;
+            var expectedColumns = importColumnDefinitions.Max(c => c.Column) - 1;
             foreach (var row in wsPart.Worksheet.Descendants<Row>().Skip(skipRows))
             {
                 var tnew = new T();
                 var cellCollection = row.Elements<Cell>().ToList();
 
+                //Check to see if the row has at least the same number of cells as the import model expects.
+                //If not, skip the row
+                if (cellCollection.Count < expectedColumns)
+                    continue;
+
                 foreach (var col in importColumnDefinitions)
                 {
+                    if (cellCollection.ElementAtOrDefault(col.Column - 1) == null)
+                    {
+                        continue;
+                    }
                     var value = GetCellValue(cellCollection[col.Column - 1]);
                     if (string.IsNullOrEmpty(value))
                         col.Property.SetValue(tnew, null);
