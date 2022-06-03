@@ -205,7 +205,7 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
         _ => new Cell { CellValue = new CellValue(itemValue.ToString() ?? ""), DataType = CellValues.String },
     };
 
-    private record OutputPropMap(Column Column, List<Cell> Cells);
+    private sealed record OutputPropMap(Column Column, List<Cell> Cells);
 
     private static SheetData CreateExportSheet(ISpreadsheetConfiguration exportConfiguration, out Columns columns)
     {

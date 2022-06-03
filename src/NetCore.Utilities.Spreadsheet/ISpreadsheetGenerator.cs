@@ -17,6 +17,12 @@ public interface ISpreadsheetGenerator
     /// <returns>A completed MS Excel file</returns>
     byte[] CreateSingleSheetSpreadsheet<T>(SpreadsheetConfiguration<T> exportConfiguration) where T : class;
 
+    /// <inheritdoc cref="CreateSingleSheetSpreadsheet{T}(SpreadsheetConfiguration{T})"/>
+    /// <param name="output">A writable stream to save the workbook to.</param>
+    /// <param name="exportConfiguration">The loaded configuration</param>
+    /// <returns>True if the workbook was successfully exported. False otherwise.</returns>
+    bool CreateSingleSheetSpreadsheet<T>(Stream output, SpreadsheetConfiguration<T> exportConfiguration) where T : class;
+
     /// <summary>
     ///     Creates a workbook with multiple sheets using the provided configuration values
     /// </summary>
@@ -32,13 +38,6 @@ public interface ISpreadsheetGenerator
     /// </param>
     /// <returns>A single workbook in Excel format</returns>
     byte[] CreateMultiSheetSpreadsheet(MultisheetConfiguration configuration);
-
-    /// <inheritdoc cref="CreateSingleSheetSpreadsheet{T}(SpreadsheetConfiguration{T})"/>
-    /// <param name="output">A writable stream to save the workbook to.</param>
-    /// <param name="exportConfiguration">The loaded configuration</param>
-    /// <returns>True if the workbook was successfully exported. False otherwise.</returns>
-    bool CreateSingleSheetSpreadsheet<T>(Stream output, SpreadsheetConfiguration<T> exportConfiguration) where T : class;
-
 
     /// <inheritdoc cref="CreateMultiSheetSpreadsheet(IEnumerable{ISpreadsheetConfiguration})"/>
     /// <param name="output">A writable stream to save the workbook to.</param>
