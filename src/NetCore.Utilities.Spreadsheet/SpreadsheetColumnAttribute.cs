@@ -5,10 +5,11 @@ namespace ICG.NetCore.Utilities.Spreadsheet;
 /// <summary>
 ///     Controls how a property is mapped to a spreadsheet column
 /// </summary>
+[AttributeUsage(AttributeTargets.Property)]
 public class SpreadsheetColumnAttribute : Attribute
 {
     /// <summary>
-    ///     Initializes a new
+    ///     Initializes a new SpreadsheetColumn Attribute
     /// </summary>
     /// <param name="displayName">
     ///     Sets the display name of the column. If not provided, will fall back on the DisplayName
@@ -17,7 +18,7 @@ public class SpreadsheetColumnAttribute : Attribute
     /// <param name="width">Sets the width of the column</param>
     /// <param name="ignore">If true, the column will be excluded from the spreadsheet</param>
     /// <param name="format">Sets the format of the column data</param>
-    public SpreadsheetColumnAttribute(string displayName = null, float width = 0, bool ignore = false,
+    public SpreadsheetColumnAttribute(string displayName = null, float width = 0, bool ignore = false, 
         string format = null)
     {
         DisplayName = displayName;
@@ -45,7 +46,7 @@ public class SpreadsheetColumnAttribute : Attribute
     public bool Ignore { get; }
 
     /// <summary>
-    ///     A custom format for te column
+    ///     A custom format for the column
     /// </summary>
     public string Format { get; }
 }

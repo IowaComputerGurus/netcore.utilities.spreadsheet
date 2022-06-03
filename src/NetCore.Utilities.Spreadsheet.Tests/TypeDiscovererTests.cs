@@ -108,9 +108,11 @@ public class TypeDiscovererTests
         public string Column { get; set; }
     }
 
+#pragma warning disable CS0618
     public class Format_Is_Set_From_SpreadsheetColumnFormat_Attribute_TestCase
     {
         [SpreadsheetColumnFormat("c")]
         public string Column { get; set; }
     }
+#pragma warning restore CS0618
 }

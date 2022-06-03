@@ -18,7 +18,7 @@ internal record PropDetail(
 /// </summary>
 internal static class TypeDiscoverer
 {
-    private static readonly Regex TypeNameRegex =
+    private static readonly Regex TypeNameRegex = 
         new(@"(?<=[A-Z])(?=[A-Z][a-z])|(?<=[^A-Z])(?=[A-Z])|(?<=[A-Za-z])(?=[^A-Za-z])");
 
     public static IList<PropDetail> GetProps(Type t)
