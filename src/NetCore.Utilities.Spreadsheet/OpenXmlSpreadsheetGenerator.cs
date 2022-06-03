@@ -83,6 +83,14 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
     }
 
     /// <inheritdoc />
+    public byte[] CreateMultiSheetSpreadsheet(MultisheetConfiguration configuration) 
+        => CreateMultiSheetSpreadsheet((IEnumerable<ISpreadsheetConfiguration>)configuration);
+
+    /// <inheritdoc />
+    public bool CreateMultiSheetSpreadsheet(Stream output, MultisheetConfiguration configuration)
+        => CreateMultiSheetSpreadsheet(output, (IEnumerable<ISpreadsheetConfiguration>)configuration);
+
+    /// <inheritdoc />
     public byte[] CreateMultiSheetSpreadsheet(IEnumerable<ISpreadsheetConfiguration> exportSheets)
     {
         using var ms = new MemoryStream();

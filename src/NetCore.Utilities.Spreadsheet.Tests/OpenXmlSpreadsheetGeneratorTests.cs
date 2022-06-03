@@ -179,22 +179,13 @@ public class OpenXmlSpreadsheetGeneratorTests
     {
         var testSheet1Data = GetTestExportRecordFaker().Generate(100);
         var testSheet2Data = GetDifferentTestExportRecordFaker().Generate(100);
-
-        var config = new ISpreadsheetConfiguration[]
-        {
-                new SpreadsheetConfiguration<TestExportRecord>()
-                {
-                    WorksheetName = "Sheet 1",
-                    AutoSizeColumns = false,
-                    ExportData = testSheet1Data
-                },
-                new SpreadsheetConfiguration<DifferentTestExportRecord>()
-                {
-                    WorksheetName = "Sheet 2",
-                    AutoSizeColumns = false,
-                    ExportData = testSheet2Data
-                }
-        };
+        
+        var config = new MultisheetConfiguration()
+            .WithSheet("Sheet 1", testSheet1Data)
+            .WithSheet("Sheet 2", testSheet2Data, conf =>
+            {
+                conf.AutoSizeColumns = false;
+            });
         var result = _spreadsheetGenerator.CreateMultiSheetSpreadsheet(config);
         result.Should().NotBeNullOrEmpty();
         //var sheetPath = Path.Join(Path.GetTempPath(), $"CreateMultiSheetSpreadsheet_With_A_Stream_Should_Work_{DateTime.Now:yyyyMMddHHmmssfff}.xlsx");

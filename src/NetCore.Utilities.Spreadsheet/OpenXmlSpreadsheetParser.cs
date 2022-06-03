@@ -52,9 +52,9 @@ public class OpenXmlSpreadsheetParser : ISpreadsheetParser
         var sheet = workbookPart.Workbook.Descendants<Sheet>().Skip(worksheetNumber - 1).FirstOrDefault();
         if (sheet == null) throw new SpreadsheetParserException($"Workbook does not have {worksheetNumber} sheets");
         if (sheet.Id == null || !sheet.Id.HasValue || sheet.Id.Value == null) throw new SpreadsheetParserException($"Sheet {worksheetNumber} has a null Id");
-        
-        var wsPart = workbookPart.GetPartById(sheet.Id.Value) as WorksheetPart;
-        if (wsPart == null) throw new SpreadsheetParserException($"Sheet {worksheetNumber} with Id {sheet.Id.Value} is not in the workbook");
+
+        if (workbookPart.GetPartById(sheet.Id.Value) is not WorksheetPart wsPart) 
+            throw new SpreadsheetParserException($"Sheet {worksheetNumber} with Id {sheet.Id.Value} is not in the workbook");
        
         var collection = new Collection<T>();
         var skipRows = skipHeaderRow ? 1 : 0;
@@ -168,7 +168,5 @@ public class OpenXmlSpreadsheetParser : ISpreadsheetParser
             default:
                 return value;
         }
-
-        return value;
     }
 }
