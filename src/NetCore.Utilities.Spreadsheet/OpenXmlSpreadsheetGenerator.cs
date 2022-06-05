@@ -200,7 +200,7 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
         _ when IsOfType<double>(t) => new Cell { CellValue = new CellValue((double)itemValue), DataType = CellValues.Number },
         _ when IsOfType<long>(t) => new Cell { CellValue = new CellValue(Convert.ToDecimal((long)itemValue)), DataType = CellValues.Number }, //There is no constructor for longs
         _ when IsOfType<float>(t) => new Cell { CellValue = new CellValue((float)itemValue), DataType = CellValues.Number },
-        _ when IsOfType<DateTime>(t) => new Cell { CellValue = new CellValue(((DateTime)itemValue).ToOADate().ToString(CultureInfo.InvariantCulture)), StyleIndex = 6},
+        _ when IsOfType<DateTime>(t) => new Cell { CellValue = new CellValue(((DateTime)itemValue).ToString(CultureInfo.InvariantCulture)), DataType = CellValues.String, StyleIndex = 6},
         _ when IsOfType<DateTimeOffset>(t) => new Cell { CellValue = new CellValue((DateTimeOffset)itemValue), DataType = CellValues.String},
         _ => new Cell { CellValue = new CellValue(itemValue.ToString() ?? ""), DataType = CellValues.String },
     };
@@ -284,14 +284,12 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
                 var itemValue = prop.Descriptor.GetValue(item);
                 var dataCell = CellFromValue(prop.Descriptor.PropertyType, itemValue);
 
-                if (prop.Format == "c")
+                dataCell.StyleIndex = prop.Format switch
                 {
-                    dataCell.StyleIndex = (int)FontStyleIndex.NormalCurrency;
-                }
-                else if (prop.Format == "d") //Date
-                {
-                    dataCell.StyleIndex = (int)FontStyleIndex.NormalDate;
-                }
+                    "c" => (int)FontStyleIndex.NormalCurrency,
+                    "d" => (int)FontStyleIndex.NormalDate,
+                    _ => dataCell.StyleIndex
+                };
                 outputMap[prop].Cells.Add(dataCell);
                 dataRow.Append(dataCell);
             }

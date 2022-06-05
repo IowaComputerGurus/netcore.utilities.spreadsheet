@@ -26,10 +26,10 @@ internal static class TypeDiscoverer
         var properties = TypeDescriptor.GetProperties(t);
         var details = new List<PropDetail>();
         var columnOrder = 1;
-        var width = 0f;
-        var format = "";
         foreach (PropertyDescriptor p in properties)
         {
+            var width = 0f;
+            var format = "";
             var propName = p.DisplayName;
             if (p.DisplayName == p.Name) propName = TypeNameRegex.Replace(p.Name, " ");
 
@@ -49,7 +49,7 @@ internal static class TypeDiscoverer
                             continue;
                         }
 
-                        format = sca.Format ?? format;
+                        format = (sca.Format ?? format).ToLowerInvariant();
                         propName = sca.DisplayName ?? propName;
                         width = sca.Width;
                         break;
