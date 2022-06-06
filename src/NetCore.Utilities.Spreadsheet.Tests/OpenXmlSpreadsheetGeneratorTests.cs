@@ -129,9 +129,9 @@ public class OpenXmlSpreadsheetGeneratorTests
             .RuleFor(i => i.NullableStringValue, f => f.Commerce.ProductName().OrNull(f))
             .RuleFor(i => i.DateOnly, f => f.Date.Soon())
             .RuleFor(i => i.Currency, f => decimal.Parse(f.Commerce.Price()))
-            .RuleFor(i => i.Fixed0, f => f.Random.Number(0, 100))
-            .RuleFor(i => i.Fixed1, f => f.Random.Number(0, 100))
-            .RuleFor(i => i.Fixed2, f => f.Random.Number(0, 100))
+            .RuleFor(i => i.Fixed0, f => f.Random.Decimal(0, 100))
+            .RuleFor(i => i.Fixed1, f => f.Random.Decimal(0, 100))
+            .RuleFor(i => i.Fixed2, f => f.Random.Decimal(0, 100))
     ;
 
     private static Faker<DifferentTestExportRecord> GetDifferentTestExportRecordFaker() =>
