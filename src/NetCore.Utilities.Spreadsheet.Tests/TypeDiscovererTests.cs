@@ -64,13 +64,6 @@ public class TypeDiscovererTests
         results.First().Format.Should().Be("c");
     }
 
-    [Fact]
-    public void Format_Is_Set_From_SpreadsheetColumnFormat_Attribute()
-    {
-        var results = TypeDiscoverer.GetProps(typeof(Format_Is_Set_From_SpreadsheetColumnFormat_Attribute_TestCase));
-        results.First().Format.Should().Be("c");
-    }
-
     private class Sets_DisplayName_From_Annotation_If_Present_TestCase
     {
         [DisplayName("Some Prop Name")]
@@ -108,11 +101,5 @@ public class TypeDiscovererTests
         public string Column { get; set; }
     }
 
-#pragma warning disable CS0618
-    public class Format_Is_Set_From_SpreadsheetColumnFormat_Attribute_TestCase
-    {
-        [SpreadsheetColumnFormat("c")]
-        public string Column { get; set; }
-    }
-#pragma warning restore CS0618
+
 }

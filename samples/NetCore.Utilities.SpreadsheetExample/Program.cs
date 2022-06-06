@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Reflection;
-using System.Security.Authentication.ExtendedProtection;
 using ICG.NetCore.Utilities.Spreadsheet;
 using Microsoft.Extensions.DependencyInjection;
 using NetCore.Utilities.SpreadsheetExample.Models;
@@ -20,7 +16,7 @@ namespace NetCore.Utilities.SpreadsheetExample
             var provider = services.BuildServiceProvider();
 
             //Get our generator and export
-            var exportGenerator = provider.GetService<ISpreadsheetGenerator>();
+            var exportGenerator = provider.GetRequiredService<ISpreadsheetGenerator>();
             var exportDefinition = new SpreadsheetConfiguration<SimpleExportData>
             {
                 RenderTitle = true,

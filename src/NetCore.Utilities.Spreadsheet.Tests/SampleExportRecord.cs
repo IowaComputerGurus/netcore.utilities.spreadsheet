@@ -4,17 +4,15 @@ using System.ComponentModel;
 namespace ICG.NetCore.Utilities.Spreadsheet.Tests;
 
 #nullable enable
-#pragma warning disable CS0618 // This is for testing, and the attribute needs to be supported until it is removed
 public class SampleExportRecord
 {
     [DisplayName("Title")]
     public string? RecordTitle { get; set; }
 
     [DisplayName("Amount")]
-    [SpreadsheetColumnFormat("C")]
+    [SpreadsheetColumn("Amount", format:"C")]
     public decimal RecordAmount { get; set; }
 }
-#pragma warning restore CS0618
 
 public class TestExportRecord
 {
@@ -50,7 +48,7 @@ public class TestExportRecord
     [SpreadsheetImportColumn(8)]
     public long? NullableLongValue { get; set; }
 
-    [SpreadsheetColumn(displayName: "DateTimeValue")]
+    [SpreadsheetColumn(displayName: "DateTimeValue", format: "d")]
     [SpreadsheetImportColumn(9)]
     public DateTime DateTimeValue { get; set; }
 
