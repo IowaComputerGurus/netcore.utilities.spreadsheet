@@ -48,7 +48,7 @@ public class TestExportRecord
     [SpreadsheetImportColumn(8)]
     public long? NullableLongValue { get; set; }
 
-    [SpreadsheetColumn(displayName: "DateTimeValue", format: "d")]
+    [SpreadsheetColumn(displayName: "DateTimeValue")]
     [SpreadsheetImportColumn(9)]
     public DateTime DateTimeValue { get; set; }
 
@@ -71,6 +71,26 @@ public class TestExportRecord
     [SpreadsheetColumn(displayName: "NullableStringValue")]
     [SpreadsheetImportColumn(14)]
     public string? NullableStringValue { get; set; }
+
+    [SpreadsheetColumn(displayName: "Date Only", format: ColumnFormats.Date)]
+    [SpreadsheetImportColumn(15)]
+    public DateTime DateOnly { get; set; }
+
+    [SpreadsheetColumn(displayName: "Currency", format: ColumnFormats.Currency)]
+    [SpreadsheetImportColumn(16)]
+    public decimal Currency { get; set; }
+
+    [SpreadsheetColumn(displayName: "Fixed0", format: ColumnFormats.Fixed0)]
+    [SpreadsheetImportColumn(17)]
+    public decimal Fixed0 { get; set; }
+
+    [SpreadsheetColumn(displayName: "Fixed1", format: ColumnFormats.Fixed1)]
+    [SpreadsheetImportColumn(18)]
+    public decimal Fixed1 { get; set; }
+
+    [SpreadsheetColumn(displayName: "Fixed2", format: ColumnFormats.Fixed2)]
+    [SpreadsheetImportColumn(19)]
+    public decimal Fixed2 { get; set; }
 }
 
 public class DifferentTestExportRecord

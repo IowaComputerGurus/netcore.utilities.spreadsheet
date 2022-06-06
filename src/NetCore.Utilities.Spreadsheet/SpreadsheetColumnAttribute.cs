@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace ICG.NetCore.Utilities.Spreadsheet;
 
@@ -46,7 +47,38 @@ public class SpreadsheetColumnAttribute : Attribute
     public bool Ignore { get; }
 
     /// <summary>
-    ///     A custom format for the column
+    ///     A custom format for the column. See <see cref="ColumnFormats"/> for valid values.
     /// </summary>
     public string Format { get; }
+}
+
+/// <summary>
+///     Contains valid values for <see cref="SpreadsheetColumnAttribute.Format"/>
+/// </summary>
+public static class ColumnFormats
+{
+    /// <summary>
+    ///     Formats the column as date only
+    /// </summary>
+    public const string Date = "D";
+
+    /// <summary>
+    ///     Formats the column as currency
+    /// </summary>
+    public const string Currency = "C";
+
+    /// <summary>
+    ///     Formats the column as a number with no decimal places
+    /// </summary>
+    public const string Fixed0 = "F0";
+
+    /// <summary>
+    ///     Formats the column as a number with one decimal place
+    /// </summary>
+    public const string Fixed1 = "F1";
+
+    /// <summary>
+    ///     Formats the column as a number with two decimal places
+    /// </summary>
+    public const string Fixed2 = "F2";
 }

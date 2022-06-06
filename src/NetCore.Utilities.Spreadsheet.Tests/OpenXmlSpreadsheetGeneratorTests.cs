@@ -127,6 +127,11 @@ public class OpenXmlSpreadsheetGeneratorTests
             .RuleFor(i => i.NullableIntValue, f => f.Random.Int().OrNull(f))
             .RuleFor(i => i.NullableLongValue, f => f.Random.Long().OrNull(f))
             .RuleFor(i => i.NullableStringValue, f => f.Commerce.ProductName().OrNull(f))
+            .RuleFor(i => i.DateOnly, f => f.Date.Soon())
+            .RuleFor(i => i.Currency, f => decimal.Parse(f.Commerce.Price()))
+            .RuleFor(i => i.Fixed0, f => f.Random.Number(0, 100))
+            .RuleFor(i => i.Fixed1, f => f.Random.Number(0, 100))
+            .RuleFor(i => i.Fixed2, f => f.Random.Number(0, 100))
     ;
 
     private static Faker<DifferentTestExportRecord> GetDifferentTestExportRecordFaker() =>
@@ -175,7 +180,7 @@ public class OpenXmlSpreadsheetGeneratorTests
     {
         var testSheet1Data = GetTestExportRecordFaker().Generate(100);
         var testSheet2Data = GetDifferentTestExportRecordFaker().Generate(100);
-        
+
         var config = new MultisheetConfiguration()
             .WithSheet("Sheet 1", testSheet1Data, conf =>
             {
@@ -228,8 +233,8 @@ public class OpenXmlSpreadsheetGeneratorTests
          * that its actually displaying the values right, and we didn't offend its delicate sensibilities by
          * setting an attribute in the wrong place or something.
          */
-        //var sheetPath = Path.Join(Path.GetTempPath(), $"createsingleworksheet_should_work_{DateTime.Now:yyyyMMddHHmmssfff}.xlsx");
-        //File.WriteAllBytes(sheetPath, result);
+        var sheetPath = Path.Join(Path.GetTempPath(), $"createsingleworksheet_should_work_{DateTime.Now:yyyyMMddHHmmssfff}.xlsx");
+        File.WriteAllBytes(sheetPath, result);
         ValidateExportedSheet(ms, 1, testData);
     }
 

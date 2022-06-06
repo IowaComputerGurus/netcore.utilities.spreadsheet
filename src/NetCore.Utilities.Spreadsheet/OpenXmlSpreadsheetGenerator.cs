@@ -148,37 +148,6 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
         return true;
     }
 
-    /// <summary>
-    /// Internal helper for tracking font-style indexes
-    /// </summary>
-    private enum FontStyleIndex
-    {
-        /// <summary>
-        /// Default cell text
-        /// </summary>
-        Default = 0,
-        /// <summary>
-        /// Document header formatting
-        /// </summary>
-        Header = 1,
-        /// <summary>
-        /// Document sub-header formatting
-        /// </summary>
-        SubHeader = 2,
-        /// <summary>
-        /// Headers for actual data.
-        /// </summary>
-        DataHeader = 3,
-        /// <summary>
-        /// Normal font formatted for currency
-        /// </summary>
-        NormalCurrency = 4,
-        /// <summary>
-        /// Normal font formatted for date
-        /// </summary>
-        NormalDate = 5
-    }
-
     private static bool IsOfType<T>(Type t)
     {
         var typeToCheck = typeof(T);
@@ -200,7 +169,7 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
         _ when IsOfType<double>(t) => new Cell { CellValue = new CellValue((double)itemValue), DataType = CellValues.Number },
         _ when IsOfType<long>(t) => new Cell { CellValue = new CellValue(Convert.ToDecimal((long)itemValue)), DataType = CellValues.Number }, //There is no constructor for longs
         _ when IsOfType<float>(t) => new Cell { CellValue = new CellValue((float)itemValue), DataType = CellValues.Number },
-        _ when IsOfType<DateTime>(t) => new Cell { CellValue = new CellValue(((DateTime)itemValue).ToString(CultureInfo.InvariantCulture)), DataType = CellValues.String, StyleIndex = 6},
+        _ when IsOfType<DateTime>(t) => new Cell { CellValue = new CellValue(((DateTime)itemValue)), DataType = CellValues.Date, StyleIndex = (int)FontStyleIndex.DateTime},
         _ when IsOfType<DateTimeOffset>(t) => new Cell { CellValue = new CellValue((DateTimeOffset)itemValue), DataType = CellValues.String},
         _ => new Cell { CellValue = new CellValue(itemValue.ToString() ?? ""), DataType = CellValues.String },
     };
@@ -288,6 +257,9 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
                 {
                     "c" => (int)FontStyleIndex.NormalCurrency,
                     "d" => (int)FontStyleIndex.NormalDate,
+                    "f0" => (int)FontStyleIndex.Fixed0,
+                    "f1" => (int)FontStyleIndex.Fixed1,
+                    "f2" => (int)FontStyleIndex.Fixed2,
                     _ => dataCell.StyleIndex
                 };
                 outputMap[prop].Cells.Add(dataCell);
@@ -308,6 +280,40 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
         return data;
     }
 
+    /// <summary>
+    /// Internal helper for tracking font-style indexes
+    /// </summary>
+    private enum FontStyleIndex
+    {
+        /// <summary>
+        /// Default cell text
+        /// </summary>
+        Default = 0,
+        /// <summary>
+        /// Document header formatting
+        /// </summary>
+        Header = 1,
+        /// <summary>
+        /// Document sub-header formatting
+        /// </summary>
+        SubHeader = 2,
+        /// <summary>
+        /// Headers for actual data.
+        /// </summary>
+        DataHeader = 3,
+        /// <summary>
+        /// Normal font formatted for currency
+        /// </summary>
+        NormalCurrency = 4,
+        /// <summary>
+        /// Normal font formatted for date
+        /// </summary>
+        NormalDate = 5,
+        DateTime = 6,
+        Fixed0 = 7,
+        Fixed1=8,
+        Fixed2=9,
+    }
 
     /// <summary>
     /// Creates the needed stylesheet to support our styles for documents
@@ -355,10 +361,14 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
 
         // blank cell format list
         styles.CellStyleFormats = new CellStyleFormats(new CellFormat());
-            
+
         styles.NumberingFormats = new NumberingFormats(
             new NumberingFormat { NumberFormatId = 164, FormatCode = "\"$\"#,##0.00" },
-            new NumberingFormat { NumberFormatId = 300, FormatCode = "MM/dd/yyyy" });
+            new NumberingFormat { NumberFormatId = 300, FormatCode = "mm/dd/yyyy" },
+            new NumberingFormat { NumberFormatId = 301, FormatCode = "0" },
+            new NumberingFormat { NumberFormatId = 302, FormatCode = "0.0" },
+            new NumberingFormat { NumberFormatId = 303, FormatCode = "0.00" }
+        );
 
         styles.CellFormats = new CellFormats(
             new CellFormat(), //Default
@@ -386,6 +396,32 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
             new CellFormat
             {
                 NumberFormatId = 22,
+                ApplyNumberFormat = true
+            },
+            new CellFormat
+            {
+                FormatId = 0,
+                FontId = 0,
+                BorderId = 0,
+                FillId = 0,
+                NumberFormatId = 301,
+                ApplyNumberFormat = true
+            },
+            new CellFormat
+            {
+                FormatId = 0,
+                FontId = 0,
+                BorderId = 0,
+                FillId = 0,
+                NumberFormatId = 302,
+                ApplyNumberFormat = true
+            }, new CellFormat
+            {
+                FormatId = 0,
+                FontId = 0,
+                BorderId = 0,
+                FillId = 0,
+                NumberFormatId = 303,
                 ApplyNumberFormat = true
             }
         );
