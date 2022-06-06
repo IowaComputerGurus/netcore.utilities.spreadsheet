@@ -255,11 +255,11 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
 
                 dataCell.StyleIndex = prop.Format switch
                 {
-                    "c" => (int)FontStyleIndex.NormalCurrency,
-                    "d" => (int)FontStyleIndex.NormalDate,
-                    "f0" => (int)FontStyleIndex.Fixed0,
-                    "f1" => (int)FontStyleIndex.Fixed1,
-                    "f2" => (int)FontStyleIndex.Fixed2,
+                    ColumnFormats.Currency => (int)FontStyleIndex.NormalCurrency,
+                    ColumnFormats.Date => (int)FontStyleIndex.NormalDate,
+                    ColumnFormats.Fixed0 => (int)FontStyleIndex.Fixed0,
+                    ColumnFormats.Fixed1 => (int)FontStyleIndex.Fixed1,
+                    ColumnFormats.Fixed2 => (int)FontStyleIndex.Fixed2,
                     _ => dataCell.StyleIndex
                 };
                 outputMap[prop].Cells.Add(dataCell);
