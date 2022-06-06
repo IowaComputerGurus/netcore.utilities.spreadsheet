@@ -60,25 +60,25 @@ public static class ColumnFormats
     /// <summary>
     ///     Formats the column as date only
     /// </summary>
-    public const string Date = "D";
+    public const string Date = "d";
 
     /// <summary>
     ///     Formats the column as currency
     /// </summary>
-    public const string Currency = "C";
+    public const string Currency = "c";
 
     /// <summary>
     ///     Formats the column as a number with no decimal places
     /// </summary>
-    public const string Fixed0 = "F0";
+    public const string Fixed0 = "f0";
 
     /// <summary>
     ///     Formats the column as a number with one decimal place
     /// </summary>
-    public const string Fixed1 = "F1";
+    public const string Fixed1 = "f1";
 
     /// <summary>
     ///     Formats the column as a number with two decimal places
     /// </summary>
-    public const string Fixed2 = "F2";
+    public const string Fixed2 = "f2";
 }
