@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace ICG.NetCore.Utilities.Spreadsheet;
@@ -6,8 +7,7 @@ namespace ICG.NetCore.Utilities.Spreadsheet;
 /// <summary>
 ///     Definition of a spreadsheet configuration for exporting of data
 /// </summary>
-/// <typeparam name="T">The type to be exported</typeparam>
-public interface ISpreadsheetConfiguration<out T> where T : class
+public interface ISpreadsheetConfiguration
 {
     /// <summary>
     ///     Defines if the title will be rendered.  If [true] <see cref="DocumentTitle" /> is required.
@@ -41,10 +41,10 @@ public interface ISpreadsheetConfiguration<out T> where T : class
     ///     The data to export
     /// </summary>
     /// <value>The export data.</value>
-    IEnumerable<T> ExportData { get; }
+    IEnumerable ExportData { get; }
 
     /// <summary>
-    ///     The type of data represented in this export configuration
+    /// The type of data represented in this export configuration
     /// </summary>
     Type DataType { get; }
 
@@ -55,9 +55,18 @@ public interface ISpreadsheetConfiguration<out T> where T : class
     string WorksheetName { get; set; }
 
     /// <summary>
-    ///     Controls if the columns are auto-sized
+    /// Controls if the columns are auto-sized
     /// </summary>
     public bool AutoSizeColumns { get; set; }
+}
+/// <inheritdoc />
+/// <typeparam name="TRecord">The type to be exported</typeparam>
+public interface ISpreadsheetConfiguration<out TRecord> : ISpreadsheetConfiguration where TRecord : class
+{
+    /// <inheritdoc cref="ExportData"/>
+    new IEnumerable<TRecord> ExportData { get; }
+
+    IEnumerable ISpreadsheetConfiguration.ExportData => ExportData;
 }
 
 /// <summary>
@@ -99,7 +108,7 @@ public class SpreadsheetConfiguration<T> : ISpreadsheetConfiguration<T> where T 
     /// <value>The export data.</value>
     public IEnumerable<T> ExportData { get; set; }
 
-    /// <inheritdoc cref="ISpreadsheetConfiguration{T}" />
+    /// <inheritdoc cref="ISpreadsheetConfiguration{T}"/>
     public Type DataType => typeof(T);
 
     /// <summary>
@@ -111,4 +120,44 @@ public class SpreadsheetConfiguration<T> : ISpreadsheetConfiguration<T> where T 
 
     /// <inheritdoc />
     public bool AutoSizeColumns { get; set; } = true;
+}
+
+/// <summary>
+///     Describes configuration for a multi-sheet export
+/// </summary>
+public class MultisheetConfiguration : IEnumerable<ISpreadsheetConfiguration>
+{
+    private readonly List<ISpreadsheetConfiguration> _sheets = new();
+
+    /// <summary>
+    ///     Adds a sheet with data to the export
+    /// </summary>
+    /// <typeparam name="T">The type to be exported</typeparam>
+    /// <param name="worksheetName">The name of the worksheet.</param>
+    /// <param name="data">The data for the worksheet</param>
+    /// <returns>
+    ///     The same instance of <see cref="MultisheetConfiguration"/> to allow for
+    ///     for fluent configuration
+    /// </returns>
+    public MultisheetConfiguration WithSheet<T>(string worksheetName, IEnumerable<T> data) where T : class
+    {
+        _sheets.Add(new SpreadsheetConfiguration<T>{ WorksheetName = worksheetName, ExportData = data});
+        return this;
+    }
+
+    /// <inheritdoc cref="WithSheet{T}(string,IEnumerable{T})"/>
+    /// <param name="worksheetName">The name of the worksheet.</param>
+    /// <param name="data">The data for the worksheet</param>
+    /// <param name="config">A callback allowing for additional configuration of the sheet</param>
+    public MultisheetConfiguration WithSheet<T>(string worksheetName, IEnumerable<T> data, Action<SpreadsheetConfiguration<T>> config) where T : class
+    {
+        var sheet = new SpreadsheetConfiguration<T> { WorksheetName = worksheetName, ExportData = data };
+        config(sheet);
+        _sheets.Add(sheet);
+        return this;
+    }
+
+    /// <inheritdoc />
+    public IEnumerator<ISpreadsheetConfiguration> GetEnumerator() => _sheets.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_sheets).GetEnumerator();
 }

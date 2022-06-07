@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace ICG.NetCore.Utilities.Spreadsheet;
+#nullable enable
 
 /// <inheritdoc />
 public class OpenXmlSpreadsheetParser : ISpreadsheetParser
@@ -42,100 +45,128 @@ public class OpenXmlSpreadsheetParser : ISpreadsheetParser
             throw new ArgumentException("No columns identified as SpreadsheetImportColumns, unable to process", "T");
 
         //Import
-        using (fileStream)
+        var excelDoc = SpreadsheetDocument.Open(fileStream, false);
+        var workbookPart = excelDoc.WorkbookPart;
+        if (workbookPart == null) throw new SpreadsheetParserException("Spreadsheet has no WorkbookPart");
+
+        var sheet = workbookPart.Workbook.Descendants<Sheet>().Skip(worksheetNumber - 1).FirstOrDefault();
+        if (sheet == null) throw new SpreadsheetParserException($"Workbook does not have {worksheetNumber} sheets");
+        if (sheet.Id == null || !sheet.Id.HasValue || sheet.Id.Value == null) throw new SpreadsheetParserException($"Sheet {worksheetNumber} has a null Id");
+
+        if (workbookPart.GetPartById(sheet.Id.Value) is not WorksheetPart wsPart) 
+            throw new SpreadsheetParserException($"Sheet {worksheetNumber} with Id {sheet.Id.Value} is not in the workbook");
+       
+        var collection = new Collection<T>();
+        var skipRows = skipHeaderRow ? 1 : 0;
+        var expectedColumns = importColumnDefinitions.Max(c => c.Column) - 1;
+
+        foreach (Row row in wsPart.Worksheet.Descendants<Row>().Skip(skipRows))
         {
-            var excelDoc = SpreadsheetDocument.Open(fileStream, false);
-            var workbookPart = excelDoc.WorkbookPart;
-            var sheet = excelDoc.WorkbookPart.Workbook.Descendants<Sheet>()
-                .ToList()[worksheetNumber - 1]; //Offset due to 1 based values
-            var wsPart = workbookPart.GetPartById(sheet.Id) as WorksheetPart;
-            var collection = new Collection<T>();
-            var skipRows = skipHeaderRow ? 1 : 0;
-            var expectedColumns = importColumnDefinitions.Max(c => c.Column) - 1;
-            foreach (var row in wsPart.Worksheet.Descendants<Row>().Skip(skipRows))
+            var tnew = new T();
+            var cellCollection = row.Elements<Cell>().ToList();
+
+            //Check to see if the row has at least the same number of cells as the import model expects.
+            //If not, skip the row
+            if (cellCollection.Count < expectedColumns)
+                continue;
+
+            foreach (var col in importColumnDefinitions)
             {
-                var tnew = new T();
-                var cellCollection = row.Elements<Cell>().ToList();
-
-                //Check to see if the row has at least the same number of cells as the import model expects.
-                //If not, skip the row
-                if (cellCollection.Count < expectedColumns)
-                    continue;
-
-                foreach (var col in importColumnDefinitions)
+                if (cellCollection.ElementAtOrDefault(col.Column - 1) == null)
                 {
-                    if (cellCollection.ElementAtOrDefault(col.Column - 1) == null)
-                    {
-                        continue;
-                    }
-                    var value = GetCellValue(cellCollection[col.Column - 1]);
-                    if (string.IsNullOrEmpty(value))
-                        col.Property.SetValue(tnew, null);
-
-                    else if (col.Property.PropertyType == typeof(int))
-                        col.Property.SetValue(tnew, int.Parse(value));
-
-                    else if (col.Property.PropertyType == typeof(double))
-                        col.Property.SetValue(tnew, double.Parse(value));
-
-                    else if (col.Property.PropertyType == typeof(DateTime))
-                        col.Property.SetValue(tnew, DateTime.Parse(value));
-                    else
-                        //Its a string
-                        col.Property.SetValue(tnew, value);
+                    continue;
                 }
 
-                collection.Add(tnew);
+                var value = GetCellValue(cellCollection[col.Column - 1]);
+                col.Property.SetValue(tnew, ValueFromCell(value, col.Property.PropertyType));
             }
 
-            return collection.ToList();
+            collection.Add(tnew);
         }
+
+
+        return collection.ToList();
+
+    }
+    private static bool IsOfType<T>(Type t)
+    {
+        var typeToCheck = typeof(T);
+
+        var unwrapped = Nullable.GetUnderlyingType(t);
+        if (unwrapped == null)
+        {
+            return t == typeToCheck;
+        }
+
+        return unwrapped == typeToCheck;
     }
 
-    private static string GetCellValue(Cell cell)
+    private static DateTime? MangleDateTime(string value)
+    {
+        if (DateTime.TryParse(value, out var dt))
+            return dt;
+        if (double.TryParse(value, out var d))
+            return DateTime.FromOADate(d);
+        return null;
+    }
+
+    private static object? ValueFromCell(string? value, Type propertyType) => propertyType switch
+    {
+        _ when string.IsNullOrEmpty(value) => null,
+        _ when IsOfType<int>(propertyType) => int.Parse(value),
+        _ when IsOfType<decimal>(propertyType) => decimal.Parse(value),
+        _ when IsOfType<double>(propertyType) => double.Parse(value),
+        _ when IsOfType<long>(propertyType) => long.Parse(value),
+        _ when IsOfType<float>(propertyType) => float.Parse(value),
+        _ when IsOfType<DateTime>(propertyType) => MangleDateTime(value),
+        _ when IsOfType<DateTimeOffset>(propertyType) => DateTimeOffset.Parse(value),
+        _ => value
+    };
+
+    private static string? GetCellValue(Cell? cell)
     {
         if (cell == null)
             return null;
         if (cell.DataType == null)
             return cell.InnerText;
 
-        var value = cell.InnerText;
+        string value = cell.InnerText;
         switch (cell.DataType.Value)
         {
             case CellValues.SharedString:
                 // For shared strings, look up the value in the shared strings table.
                 // Get worksheet from cell
-                var parent = cell.Parent;
+                Debug.Assert(cell.Parent != null, "cell.Parent != null");
+                OpenXmlElement parent = cell.Parent;
                 while (parent.Parent != null && parent.Parent != parent
-                                             && string.Compare(parent.LocalName, "worksheet", true) != 0)
-                    parent = parent.Parent;
-                if (string.Compare(parent.LocalName, "worksheet", true) != 0)
-                    throw new Exception("Unable to find parent worksheet.");
-
-                var ws = parent as Worksheet;
-                var ssDoc = ws.WorksheetPart.OpenXmlPackage as SpreadsheetDocument;
-                var sstPart = ssDoc.WorkbookPart.GetPartsOfType<SharedStringTablePart>().FirstOrDefault();
-
-                // lookup value in shared string table
-                if (sstPart != null && sstPart.SharedStringTable != null)
-                    value = sstPart.SharedStringTable.ElementAt(int.Parse(value)).InnerText;
-                break;
-
-            //this case within a case is copied from msdn. 
-            case CellValues.Boolean:
-                switch (value)
+                                             && string.Compare(parent.LocalName, "worksheet", StringComparison.OrdinalIgnoreCase) != 0)
                 {
-                    case "0":
-                        value = "FALSE";
-                        break;
-                    default:
-                        value = "TRUE";
-                        break;
+                    parent = parent.Parent;
+                }
+                if (string.Compare(parent.LocalName, "worksheet", StringComparison.OrdinalIgnoreCase) != 0)
+                {
+                    throw new SpreadsheetParserException($"Unable to find parent worksheet of cell {cell}");
                 }
 
-                break;
-        }
+                var ws = parent as Worksheet;
+                var ssDoc = ws?.WorksheetPart?.OpenXmlPackage as SpreadsheetDocument;
+                var sstPart = ssDoc?.WorkbookPart?.GetPartsOfType<SharedStringTablePart>().FirstOrDefault();
 
-        return value;
+                return sstPart == null ? value : sstPart.SharedStringTable.ElementAt(int.Parse(value)).InnerText;
+            //this case within a case is copied from msdn. 
+            case CellValues.Boolean:
+                return value switch
+                {
+                    "0" => "FALSE",
+                    _ => "TRUE"
+                };
+            case CellValues.Number:
+            case CellValues.Error:
+            case CellValues.String:
+            case CellValues.InlineString:
+            case CellValues.Date:
+            default:
+                return value;
+        }
     }
 }

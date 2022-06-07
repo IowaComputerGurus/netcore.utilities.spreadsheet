@@ -8,12 +8,10 @@ namespace NetCore.Utilities.SpreadsheetExample.Models
     {
         public string Title { get; set; }
 
-        [DisplayName("Due Date")]
-        [SpreadsheetColumnFormat("D")]
+        [SpreadsheetColumn("Due Date", format:"D")]
         public DateTime DueDate { get; set; }
-
-        [DisplayName("Total Cost")]
-        [SpreadsheetColumnFormat("C")]
+        
+        [SpreadsheetColumn("Total Cost", format:"C")]
         public decimal TotalCost { get; set; }
 
         public string Notes { get; set; }

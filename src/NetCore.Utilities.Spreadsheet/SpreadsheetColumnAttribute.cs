@@ -1,14 +1,16 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace ICG.NetCore.Utilities.Spreadsheet;
 
 /// <summary>
 ///     Controls how a property is mapped to a spreadsheet column
 /// </summary>
+[AttributeUsage(AttributeTargets.Property)]
 public class SpreadsheetColumnAttribute : Attribute
 {
     /// <summary>
-    ///     Initializes a new
+    ///     Initializes a new SpreadsheetColumn Attribute
     /// </summary>
     /// <param name="displayName">
     ///     Sets the display name of the column. If not provided, will fall back on the DisplayName
@@ -17,7 +19,7 @@ public class SpreadsheetColumnAttribute : Attribute
     /// <param name="width">Sets the width of the column</param>
     /// <param name="ignore">If true, the column will be excluded from the spreadsheet</param>
     /// <param name="format">Sets the format of the column data</param>
-    public SpreadsheetColumnAttribute(string displayName = null, float width = 0, bool ignore = false,
+    public SpreadsheetColumnAttribute(string displayName = null, float width = 0, bool ignore = false, 
         string format = null)
     {
         DisplayName = displayName;
@@ -45,7 +47,38 @@ public class SpreadsheetColumnAttribute : Attribute
     public bool Ignore { get; }
 
     /// <summary>
-    ///     A custom format for te column
+    ///     A custom format for the column. See <see cref="ColumnFormats"/> for valid values.
     /// </summary>
     public string Format { get; }
+}
+
+/// <summary>
+///     Contains valid values for <see cref="SpreadsheetColumnAttribute.Format"/>
+/// </summary>
+public static class ColumnFormats
+{
+    /// <summary>
+    ///     Formats the column as date only
+    /// </summary>
+    public const string Date = "d";
+
+    /// <summary>
+    ///     Formats the column as currency
+    /// </summary>
+    public const string Currency = "c";
+
+    /// <summary>
+    ///     Formats the column as a number with no decimal places
+    /// </summary>
+    public const string Fixed0 = "f0";
+
+    /// <summary>
+    ///     Formats the column as a number with one decimal place
+    /// </summary>
+    public const string Fixed1 = "f1";
+
+    /// <summary>
+    ///     Formats the column as a number with two decimal places
+    /// </summary>
+    public const string Fixed2 = "f2";
 }
