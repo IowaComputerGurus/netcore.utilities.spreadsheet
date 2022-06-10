@@ -50,6 +50,23 @@ var fileContent = exportGenerator.CreateSingleSheetSpreadsheet(exportDefinition)
 System.IO.File.WriteAllBytes("Sample.xlsx", fileContent);
 ```
 
+## Sample Multi-Sheet Document Export
+
+A streamlined fluent syntax is available to export multiple sheets of content.
+
+```csharp
+var multiSheetDefinition = new MultisheetConfiguration()
+    .WithSheet("Sheet 1", GetSampleExportData(100))
+    .WithSheet("Additional Sheet", GetSampleExportData(500), config =>
+    {
+        config.DocumentTitle = "Lots of data";
+        config.RenderTitle = true;
+    });
+
+var multiFileContent = exportGenerator.CreateMultiSheetSpreadsheet(multiSheetDefinition);
+System.IO.File.WriteAllBytes("Sample-Multi.xlsx", multiFileContent);
+```
+
 ## Key Features
 This package is primarily geared towards the exporting of lists of objects into excel sheets.  The following key features are supported.
 
@@ -57,3 +74,4 @@ This package is primarily geared towards the exporting of lists of objects into 
 * The ability to have a heading and subheading if desired
 * Data type formatting for Date & Currency fields
 * Auto-fit of all columns for display
+* Support for Curreny, Date, F0, F1, and F2 fixed date formats

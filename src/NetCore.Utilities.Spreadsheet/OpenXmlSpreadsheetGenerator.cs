@@ -111,7 +111,6 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
         var spreadsheetDocument = SpreadsheetDocument.Create(output, SpreadsheetDocumentType.Workbook);
         var workbookPart = spreadsheetDocument.AddWorkbookPart();
         workbookPart.Workbook = new Workbook();
-        Debug.Assert(spreadsheetDocument.WorkbookPart != null, "spreadsheetDocument.WorkbookPart != null. Something must be wrong with the universe.");
         var sheets = spreadsheetDocument.WorkbookPart.Workbook.AppendChild(new Sheets());
 
         //Setup our styles
@@ -239,6 +238,7 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
                 StyleIndex = (int)FontStyleIndex.DataHeader
             };
             headerRow.Append(headerCell);
+            outputMap[prop].Cells.Add(headerCell);
         }
 
         data.Append(headerRow);
@@ -269,10 +269,7 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
             data.Append(dataRow);
             currentRow++;
         }
-
-        //Auto-size
-        //columns = AutoSize(data);
-
+        
         if (exportConfiguration.AutoSizeColumns)
         {
             CalculateSizes(outputMap.Values.ToList());
@@ -450,7 +447,7 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
         var maxWidth = 0;
 
         //TODO: Be smarter about this for our set styles
-        var numberStyles = new UInt32[] { 5, 6, 7, 8 }; //styles that will add extra chars
+        var numberStyles = new UInt32[] { 7, 8 }; //styles that will add extra chars
         var boldStyles = new UInt32[] { 1, 2, 3, 4, 6, 7, 8 }; //styles that will bold
 
         //using cell index as my column
