@@ -446,7 +446,7 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
         //iterate over all cells getting a max char value for each column
         var maxWidth = 0;
 
-        //TODO: Be smarter about this for our set styles
+        //TODO: Adjust this to use Enum & Validate all style formats
         var numberStyles = new UInt32[] { 7, 8 }; //styles that will add extra chars
         var boldStyles = new UInt32[] { 1, 2, 3, 4, 6, 7, 8 }; //styles that will bold
 
