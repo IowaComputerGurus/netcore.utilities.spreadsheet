@@ -29,18 +29,16 @@ namespace NetCore.Utilities.SpreadsheetExample
             var fileContent = exportGenerator.CreateSingleSheetSpreadsheet(exportDefinition);
             System.IO.File.WriteAllBytes("Sample.xlsx", fileContent);
 
-            var multiSheet = new List<ISpreadsheetConfiguration<object>>();
-            multiSheet.Add(exportDefinition);
-            multiSheet.Add(new SpreadsheetConfiguration<SimpleExportData>
-            {
-                RenderTitle = true,
-                DocumentTitle = "Sample Second of 50 Records",
-                RenderSubTitle = true,
-                DocumentSubTitle = "Showing the full options",
-                ExportData = GetSampleExportData(50),
-                WorksheetName = "Additional"
-            });
-            var multiFileContent = exportGenerator.CreateMultiSheetSpreadsheet(multiSheet);
+            //Sample 2 sheet export
+            var multiSheetDefinition = new MultisheetConfiguration()
+                .WithSheet("Sheet 1", GetSampleExportData(100))
+                .WithSheet("Additional Sheet", GetSampleExportData(500), config =>
+                {
+                    config.DocumentTitle = "Lots of data";
+                    config.RenderTitle = true;
+                });
+
+            var multiFileContent = exportGenerator.CreateMultiSheetSpreadsheet(multiSheetDefinition);
             System.IO.File.WriteAllBytes("Sample-Multi.xlsx", multiFileContent);
             Console.WriteLine("Files Created");
             Console.ReadLine();
