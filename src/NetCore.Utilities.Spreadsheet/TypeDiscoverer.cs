@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
 namespace ICG.NetCore.Utilities.Spreadsheet;
@@ -47,6 +48,11 @@ internal static class TypeDiscoverer
                     format = (sca.Format ?? format).ToLowerInvariant();
                     propName = sca.DisplayName ?? propName;
                     width = sca.Width;
+                }
+                else if (attr is DisplayAttribute display)
+                {
+                    if (!string.IsNullOrEmpty(display.Name))
+                        propName = display.Name;
                 }
             }
 
