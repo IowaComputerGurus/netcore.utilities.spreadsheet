@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace ICG.NetCore.Utilities.Spreadsheet.Tests;
 
@@ -99,7 +100,7 @@ public class DifferentTestExportRecord
     [SpreadsheetImportColumn(1)]
     public int Id { get; set; }
 
-    [SpreadsheetColumn(displayName: "Company")]
+    [Display(Name = "Testing This Out")]
     [SpreadsheetImportColumn(2)]
     public string Company { get; set; } = "";
 

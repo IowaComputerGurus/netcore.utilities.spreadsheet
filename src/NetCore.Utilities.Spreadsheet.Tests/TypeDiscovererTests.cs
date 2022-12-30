@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Bogus.DataSets;
 using FluentAssertions;
 using Xunit;
 
@@ -33,6 +35,16 @@ public class TypeDiscovererTests
     public void Sets_DisplayName_From_SpreadsheetColumn_Attribute()
     {
         var results = TypeDiscoverer.GetProps(typeof(Sets_DisplayName_From_SpreadsheetColumn_Attribute_TestCase));
+
+        results.Should().HaveCount(1);
+
+        results.First().DisplayName.Should().Be("Some Prop Name");
+    }
+
+    [Fact]
+    public void Sets_DisplayName_From_Display_Attribute()
+    {
+        var results = TypeDiscoverer.GetProps(typeof(Sets_DisplayName_From_DisplayAttribute_Attribute_TestCase));
 
         results.Should().HaveCount(1);
 
@@ -78,6 +90,12 @@ public class TypeDiscovererTests
     private class Sets_DisplayName_From_SpreadsheetColumn_Attribute_TestCase
     {
         [SpreadsheetColumn("Some Prop Name")]
+        public string SomeProp { get; set; }
+    }
+
+    private class Sets_DisplayName_From_DisplayAttribute_Attribute_TestCase
+    {
+        [Display(Name = "Some Prop Name")]
         public string SomeProp { get; set; }
     }
 

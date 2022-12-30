@@ -42,4 +42,23 @@ public class OpenXmlSpreadsheetParserTests
         Assert.Equal("John Smith", firstRecord.Name);
         Assert.Equal(55, firstRecord.Age);
     }
+
+    [Fact]
+    public void ParseDocument_ShouldReturnProperData_BySheetName()
+    {
+        //Arrange
+        var filePath = "../../../SampleFiles/ImportSample.xlsx";
+        var expectedCount = 3;
+
+        //Act
+        var result = _spreadsheetParser.ParseDocument<PersonRecord>(File.OpenRead(filePath), "Test Sheet", true);
+
+        //Assert
+        Assert.Equal(expectedCount, result.Count);
+        var firstRecord = result.First();
+        Assert.Equal("John Smith", firstRecord.Name);
+        Assert.Equal(55, firstRecord.Age);
+        var lastRecord = result.Last();
+        Assert.Equal("Adam", lastRecord.Name);
+    }
 }

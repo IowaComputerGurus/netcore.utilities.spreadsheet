@@ -30,6 +30,18 @@ public class OpenXmlSpreadsheetParser : ISpreadsheetParser
     /// <inheritdoc />
     public List<T> ParseDocument<T>(Stream fileStream, int worksheetNumber, bool skipHeaderRow) where T : new()
     {
+        return ParseDocumentInternal<T>(fileStream, worksheetNumber, string.Empty, skipHeaderRow);
+    }
+
+    /// <inheritdoc />
+    public List<T> ParseDocument<T>(Stream fileStream, string worksheetName, bool skipHeaderRow) where T : new()
+    {
+        return ParseDocumentInternal<T>(fileStream, null, worksheetName, skipHeaderRow);
+    }
+
+    private List<T> ParseDocumentInternal<T>(Stream fileStream, int? worksheetNumber, string worksheetName,
+        bool skipHeaderRow) where T : new()
+    {
         //Validate object is properly created
         var importColumnDefinitions = typeof(T)
             .GetProperties()
@@ -49,13 +61,24 @@ public class OpenXmlSpreadsheetParser : ISpreadsheetParser
         var workbookPart = excelDoc.WorkbookPart;
         if (workbookPart == null) throw new SpreadsheetParserException("Spreadsheet has no WorkbookPart");
 
-        var sheet = workbookPart.Workbook.Descendants<Sheet>().Skip(worksheetNumber - 1).FirstOrDefault();
-        if (sheet == null) throw new SpreadsheetParserException($"Workbook does not have {worksheetNumber} sheets");
+        Sheet sheet;
+        if (worksheetNumber.HasValue)
+        {
+            sheet = workbookPart.Workbook.Descendants<Sheet>().Skip(worksheetNumber.Value - 1).FirstOrDefault();
+            if (sheet == null) throw new SpreadsheetParserException($"Workbook does not have {worksheetNumber} sheets");
+        }
+        else
+        {
+            sheet = workbookPart.Workbook.Descendants<Sheet>().First(s => s.Name == worksheetName);
+            if (sheet == null)
+                throw new SpreadsheetParserException($"Workbook does not have a sheet named '{worksheetName}'");
+        }
+        
         if (sheet.Id == null || !sheet.Id.HasValue || sheet.Id.Value == null) throw new SpreadsheetParserException($"Sheet {worksheetNumber} has a null Id");
 
-        if (workbookPart.GetPartById(sheet.Id.Value) is not WorksheetPart wsPart) 
+        if (workbookPart.GetPartById(sheet.Id.Value) is not WorksheetPart wsPart)
             throw new SpreadsheetParserException($"Sheet {worksheetNumber} with Id {sheet.Id.Value} is not in the workbook");
-       
+
         var collection = new Collection<T>();
         var skipRows = skipHeaderRow ? 1 : 0;
         var expectedColumns = importColumnDefinitions.Max(c => c.Column) - 1;
@@ -86,8 +109,9 @@ public class OpenXmlSpreadsheetParser : ISpreadsheetParser
 
 
         return collection.ToList();
-
     }
+
+
     private static bool IsOfType<T>(Type t)
     {
         var typeToCheck = typeof(T);

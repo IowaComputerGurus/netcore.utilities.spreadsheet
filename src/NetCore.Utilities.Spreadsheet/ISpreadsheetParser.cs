@@ -36,4 +36,14 @@ public interface ISpreadsheetParser
     /// <param name="skipHeaderRow">If set to true will skip the first row of data as header information</param>
     /// <returns>The parsed information</returns>
     List<T> ParseDocument<T>(Stream fileStream, int worksheetNumber, bool skipHeaderRow) where T : new();
+
+    /// <summary>
+    ///     Parses the provided document and returns a list of T objects based on the input data, using the specific worksheet by name
+    /// </summary>
+    /// <typeparam name="T">The type to use for importing</typeparam>
+    /// <param name="fileStream">The contents of the Excel File (XLSX format</param>
+    /// <param name="worksheetName"></param>
+    /// <param name="skipHeaderRow">If set to true will skip the first row of data as header information</param>
+    /// <returns></returns>
+    List<T> ParseDocument<T>(Stream fileStream, string worksheetName, bool skipHeaderRow) where T : new();
 }
