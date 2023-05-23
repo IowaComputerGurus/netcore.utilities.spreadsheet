@@ -27,7 +27,7 @@ jobs:
 
     - name: Determine Version
       id: gitversion
-      uses: gittools/actions/gitversion/execute@v0.9.15
+      uses: gittools/actions/gitversion/execute@v0.10.2
       with:
         useConfigFile: true 
       
