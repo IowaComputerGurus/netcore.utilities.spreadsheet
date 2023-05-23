@@ -63,6 +63,11 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
         //Add a worksheet to our document
         var worksheetPart = workbookPart.AddNewPart<WorksheetPart>();
         worksheetPart.Worksheet = new Worksheet();
+
+        //If we are freezing panes add the sheet views
+        if (exportConfiguration.FreezeHeaders)
+            worksheetPart.Worksheet.Append(CreateFreezePane(exportConfiguration));
+
         worksheetPart.Worksheet.Append(columns);
         worksheetPart.Worksheet.Append(data);
 
@@ -80,6 +85,45 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
         spreadsheetDocument.Close();
         return true;
 
+    }
+
+    private SheetViews CreateFreezePane(ISpreadsheetConfiguration config)
+    {
+        //Calculate how many headers we have
+        var headerCount = 1; //Always one for rows
+        if (config.RenderSubTitle)
+            headerCount++;
+        if(config.RenderTitle)
+            headerCount++;
+
+        //Calculate the top left cell which is always A and the row below the header
+        var topLeft = $"A{headerCount + 1}";
+
+        // Create the Pane Definition
+        var pane = new Pane()
+        {
+            VerticalSplit = headerCount, //What row down should we do the vertical split
+            TopLeftCell = topLeft, //What value indicates the top left of the data row
+            ActivePane = PaneValues.BottomLeft, 
+            State = PaneStateValues.Frozen
+        };
+
+        //Create a sheet view collection with a default view
+        var sheetViews = new SheetViews();
+        var defaultView = new SheetView
+        {
+            TabSelected = true,
+            WorkbookViewId = (UInt32Value)0U
+        };
+        var selection1 = new Selection()
+        {
+            Pane = PaneValues.BottomLeft,
+            ActiveCell = topLeft
+        };
+        defaultView.Append(pane);
+        defaultView.Append(selection1);
+        sheetViews.Append(defaultView);
+        return sheetViews;
     }
 
     /// <inheritdoc />
@@ -127,6 +171,9 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
             //Add a worksheet to our document
             var worksheetPart = workbookPart.AddNewPart<WorksheetPart>();
             worksheetPart.Worksheet = new Worksheet();
+            //If we are freezing panes add the sheet views
+            if (item.FreezeHeaders)
+                worksheetPart.Worksheet.Append(CreateFreezePane(item));
             worksheetPart.Worksheet.Append(columns);
             worksheetPart.Worksheet.Append(data);
 

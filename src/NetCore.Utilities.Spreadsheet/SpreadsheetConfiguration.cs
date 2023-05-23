@@ -58,6 +58,11 @@ public interface ISpreadsheetConfiguration
     /// Controls if the columns are auto-sized
     /// </summary>
     public bool AutoSizeColumns { get; set; }
+
+    /// <summary>
+    /// if set to true the header(s) will be frozen
+    /// </summary>
+    public bool FreezeHeaders { get; set; }
 }
 /// <inheritdoc />
 /// <typeparam name="TRecord">The type to be exported</typeparam>
@@ -120,6 +125,11 @@ public class SpreadsheetConfiguration<T> : ISpreadsheetConfiguration<T> where T 
 
     /// <inheritdoc />
     public bool AutoSizeColumns { get; set; } = true;
+
+    /// <summary>
+    /// if set to true the header(s) will be frozen
+    /// </summary>
+    public bool FreezeHeaders { get; set; }
 }
 
 /// <summary>

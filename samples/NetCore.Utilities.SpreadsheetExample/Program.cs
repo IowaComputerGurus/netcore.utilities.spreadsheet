@@ -24,7 +24,8 @@ namespace NetCore.Utilities.SpreadsheetExample
                 RenderSubTitle = true,
                 DocumentSubTitle = "Showing the full options",
                 ExportData = GetSampleExportData(100),
-                WorksheetName = "Sample"
+                WorksheetName = "Sample",
+                FreezeHeaders = true
             };
             var fileContent = exportGenerator.CreateSingleSheetSpreadsheet(exportDefinition);
             System.IO.File.WriteAllBytes("Sample.xlsx", fileContent);
@@ -36,6 +37,7 @@ namespace NetCore.Utilities.SpreadsheetExample
                 {
                     config.DocumentTitle = "Lots of data";
                     config.RenderTitle = true;
+                    config.FreezeHeaders = true;
                 });
 
             var multiFileContent = exportGenerator.CreateMultiSheetSpreadsheet(multiSheetDefinition);
