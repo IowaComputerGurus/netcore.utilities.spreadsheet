@@ -44,7 +44,8 @@ var exportDefinition = new SpreadsheetConfiguration<SimpleExportData>
     RenderSubTitle = true,
     DocumentSubTitle = "Showing the full options",
     ExportData = GetSampleExportData(100),
-    WorksheetName = "Sample"
+    WorksheetName = "Sample",
+    FreezePanes = true
 };
 var fileContent = exportGenerator.CreateSingleSheetSpreadsheet(exportDefinition);
 System.IO.File.WriteAllBytes("Sample.xlsx", fileContent);
@@ -74,4 +75,5 @@ This package is primarily geared towards the exporting of lists of objects into 
 * The ability to have a heading and subheading if desired
 * Data type formatting for Date & Currency fields
 * Auto-fit of all columns for display
+* The ability to freeze the header columns into a freeze pane for single sheet, or multi-sheet exports
 * Support for Curreny, Date, F0, F1, and F2 fixed date formats
