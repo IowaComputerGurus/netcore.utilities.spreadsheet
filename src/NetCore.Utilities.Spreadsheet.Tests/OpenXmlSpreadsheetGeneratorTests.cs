@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using Bogus;
 using FluentAssertions;
@@ -108,6 +109,33 @@ public class OpenXmlSpreadsheetGeneratorTests
 
         //Assert
         Assert.Equal("exportSheets", actualResult.ParamName);
+    }
+
+    [Fact]
+    public void CreateSheet_With_Localized_ColumnName()
+    {
+        var configuration = new SpreadsheetConfiguration<LocalizedSampleExportRecord>
+        {
+            WorksheetName = "TestSheet",
+            ExportData = new List<LocalizedSampleExportRecord>()
+            {
+                new()
+                {
+                    RecordTitle = "test record"
+                }
+            }
+        };
+
+        CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("cs-CZ");
+        
+        using var ms = new MemoryStream();
+        var result = _spreadsheetGenerator.CreateSingleSheetSpreadsheet(ms, configuration);
+
+        // ms.Seek(0, SeekOrigin.Begin);
+        // File.WriteAllBytes(@"d:\dcore\test.xlsx", ms.ToArray());
+        
+        result.Should().BeTrue();
+        ms.Should().NotHaveLength(0);
     }
 
     private static Faker<TestExportRecord> GetTestExportRecordFaker() =>
