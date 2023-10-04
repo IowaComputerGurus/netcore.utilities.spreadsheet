@@ -291,6 +291,8 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
         data.Append(headerRow);
         currentRow++;
 
+        uint? firstDataRow = headerProperties.Any(d => string.IsNullOrWhiteSpace(d.Formula) == false) ? currentRow : null;
+        
         //Run the data
         foreach (var item in exportConfiguration.ExportData)
         {
@@ -316,12 +318,51 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
             data.Append(dataRow);
             currentRow++;
         }
+
+        if (firstDataRow != null)
+        {
+            var dataRow = new Row { RowIndex = currentRow };
+            foreach (var prop in headerProperties)
+            {
+                if (string.IsNullOrWhiteSpace(prop.Formula) == false)
+                {
+                    Cell dataCell = new Cell
+                    {
+                        CellReference = GetCellReferenceByRowAndColumn(currentRow, prop.Order),
+                        DataType = CellValues.Number,
+                        CellFormula = new CellFormula($"{prop.Formula}({GetCellReferenceByRowAndColumn(firstDataRow.Value, prop.Order)}:{GetCellReferenceByRowAndColumn(currentRow - 1, prop.Order)})")
+                    };
+
+                    dataCell.StyleIndex = (int)FontStyleIndex.DataHeader;
+                    
+                    outputMap[prop].Cells.Add(dataCell);
+                    dataRow.Append(dataCell);
+                }
+            }
+            
+            data.Append(dataRow);
+        }
         
         if (exportConfiguration.AutoSizeColumns)
         {
             CalculateSizes(outputMap.Values.ToList());
         }
         return data;
+    }
+    
+    private static StringValue GetCellReferenceByRowAndColumn(uint rowIndex, int columnIndex)
+    {
+        var row = rowIndex;
+        var column = columnIndex;
+        string cellReference = string.Empty;
+        while (column > 0)
+        {
+            var modulo = (column - 1) % 26;
+            cellReference = Convert.ToChar(65 + modulo) + cellReference;
+            column = (column - modulo) / 26;
+        }
+
+        return $"{cellReference}{row}";
     }
 
     /// <summary>

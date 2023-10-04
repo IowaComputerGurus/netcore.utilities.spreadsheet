@@ -237,6 +237,32 @@ public class OpenXmlSpreadsheetGeneratorTests
         File.WriteAllBytes(sheetPath, result);
         ValidateExportedSheet(ms, 1, testData);
     }
+    
+    [Fact]
+    public void CreateSingleWorksheet_With_Formula()
+    {
+        using var ms = new MemoryStream();
+        var testData = new List<SampleExportRecordWithFormula>()
+        {
+            new() { RecordTitle = "test record 1", RecordAmount = 10, RecordSize = 444 },
+            new() { RecordTitle = "test record 2", RecordAmount = 20, RecordSize = 5 },
+            new() { RecordTitle = "test record 3", RecordAmount = 30, RecordSize = 67 },
+            new() { RecordTitle = "test record 4", RecordAmount = 3, RecordSize = 477 },
+        };
+
+        _spreadsheetGenerator.CreateSingleSheetSpreadsheet(ms, new SpreadsheetConfiguration<SampleExportRecordWithFormula>
+        {
+            WorksheetName = "Test Sheet",
+            AutoSizeColumns = true,
+            ExportData = testData
+        });
+
+        // ms.Seek(0, SeekOrigin.Begin);
+        // File.WriteAllBytes(@"d:\dcore\test.xlsx", ms.ToArray());
+        
+        ms.Seek(0, SeekOrigin.Begin);
+        ms.Should().NotHaveLength(0);
+    }
 
     /*
      * This uses the OpenXmlSpreadsheetParser to attempt to pull the data out of the spreadsheet we just
