@@ -113,3 +113,9 @@ public class DifferentTestExportRecord
     public double Amount { get; set; }
 
 }
+
+public class LocalizedSampleExportRecord
+{
+    [SpreadsheetColumn(ResourceFileType = typeof(TestResources), ResourceKey = nameof(TestResources.LocalizedColumn))]
+    public string? RecordTitle { get; set; }
+}

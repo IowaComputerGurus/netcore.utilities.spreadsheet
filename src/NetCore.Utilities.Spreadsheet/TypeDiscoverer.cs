@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Resources;
 using System.Text.RegularExpressions;
 
 namespace ICG.NetCore.Utilities.Spreadsheet;
@@ -48,6 +49,12 @@ internal static class TypeDiscoverer
                     format = (sca.Format ?? format).ToLowerInvariant();
                     propName = sca.DisplayName ?? propName;
                     width = sca.Width;
+
+                    if (sca.ResourceFileType != null && string.IsNullOrWhiteSpace(sca.ResourceKey) == false)
+                    {
+                        ResourceManager rm = new(sca.ResourceFileType);
+                        propName = rm.GetString(sca.ResourceKey) ?? propName;
+                    }
                 }
                 else if (attr is DisplayAttribute display)
                 {
