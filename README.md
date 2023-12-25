@@ -45,7 +45,8 @@ var exportDefinition = new SpreadsheetConfiguration<SimpleExportData>
     DocumentSubTitle = "Showing the full options",
     ExportData = GetSampleExportData(100),
     WorksheetName = "Sample",
-    FreezePanes = true
+    FreezePanes = true,
+    AutoFilterDataRows = true
 };
 var fileContent = exportGenerator.CreateSingleSheetSpreadsheet(exportDefinition);
 System.IO.File.WriteAllBytes("Sample.xlsx", fileContent);
@@ -76,4 +77,6 @@ This package is primarily geared towards the exporting of lists of objects into 
 * Data type formatting for Date & Currency fields
 * Auto-fit of all columns for display
 * The ability to freeze the header columns into a freeze pane for single sheet, or multi-sheet exports
-* Support for Curreny, Date, F0, F1, and F2 fixed date formats
+* The ability to add "Auto Filter" behavior to the data table portion of a sheet, while still supporting all other items
+* The ability to automatically add "simple formula" totals to columsn. (SUM, AVG, etc)
+* Support for Curreny, Date, F0, F1, F2, and F3 fixed data formats

@@ -58,18 +58,23 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
         stylesPart.Stylesheet = CreateStylesheet();
         stylesPart.Stylesheet.Save();
 
-        var data = CreateExportSheet(exportConfiguration, out var columns);
+        var data = CreateExportSheet(exportConfiguration, out var columns, out var filter);
 
         //Add a worksheet to our document
         var worksheetPart = workbookPart.AddNewPart<WorksheetPart>();
         worksheetPart.Worksheet = new Worksheet();
 
-        //If we are freezing panes add the sheet views
+        //If we are freezing panes add the sheet views, this is done BEFORE the data is loaded
         if (exportConfiguration.FreezeHeaders)
             worksheetPart.Worksheet.Append(CreateFreezePane(exportConfiguration));
 
+        //Load the actual data
         worksheetPart.Worksheet.Append(columns);
         worksheetPart.Worksheet.Append(data);
+
+        //If Filtering, add it after we have added the data
+        if (exportConfiguration.AutoFilterDataRows)
+            worksheetPart.Worksheet.Append(filter);
 
         //Add the sheet to the workbook
         var sheets = spreadsheetDocument.WorkbookPart.Workbook.AppendChild(new Sheets());
@@ -166,16 +171,23 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
         var sheetId = 1u;
         foreach (var item in exportSheets)
         {
-            var data = CreateExportSheet(item, out var columns);
+            var data = CreateExportSheet(item, out var columns, out var filter);
 
             //Add a worksheet to our document
             var worksheetPart = workbookPart.AddNewPart<WorksheetPart>();
             worksheetPart.Worksheet = new Worksheet();
-            //If we are freezing panes add the sheet views
+
+            //If we are freezing panes add the sheet views before loading the data
             if (item.FreezeHeaders)
                 worksheetPart.Worksheet.Append(CreateFreezePane(item));
+
+            //Load the data
             worksheetPart.Worksheet.Append(columns);
             worksheetPart.Worksheet.Append(data);
+
+            //If we are filtering, add the filter ater the data
+            if (item.AutoFilterDataRows)
+                worksheetPart.Worksheet.Append(filter);
 
             //Add the sheet to the workbook
             var sheet = new Sheet
@@ -222,7 +234,7 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
 
     private sealed record OutputPropMap(Column Column, List<Cell> Cells);
 
-    private static SheetData CreateExportSheet(ISpreadsheetConfiguration exportConfiguration, out Columns columns)
+    private static SheetData CreateExportSheet(ISpreadsheetConfiguration exportConfiguration, out Columns columns, out AutoFilter filter)
     {
         //Build out our sheet information
         var data = new SheetData();
@@ -291,7 +303,8 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
         data.Append(headerRow);
         currentRow++;
 
-        uint? firstDataRow = headerProperties.Any(d => string.IsNullOrWhiteSpace(d.Formula) == false) ? currentRow : null;
+        var dataRowIndex = currentRow;
+        var requiresFormula = headerProperties.Any(d => string.IsNullOrWhiteSpace(d.Formula) == false);
         
         //Run the data
         foreach (var item in exportConfiguration.ExportData)
@@ -320,7 +333,8 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
             currentRow++;
         }
 
-        if (firstDataRow != null)
+        //Add the formula(s) as needed
+        if (requiresFormula)
         {
             var dataRow = new Row { RowIndex = currentRow };
             foreach (var prop in headerProperties)
@@ -331,7 +345,7 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
                     {
                         CellReference = GetCellReferenceByRowAndColumn(currentRow, prop.Order),
                         DataType = CellValues.Number,
-                        CellFormula = new CellFormula($"{prop.Formula}({GetCellReferenceByRowAndColumn(firstDataRow.Value, prop.Order)}:{GetCellReferenceByRowAndColumn(currentRow - 1, prop.Order)})")
+                        CellFormula = new CellFormula($"{prop.Formula}({GetCellReferenceByRowAndColumn(dataRowIndex, prop.Order)}:{GetCellReferenceByRowAndColumn(currentRow - 1, prop.Order)})")
                     };
 
                     //Match the formatting of the column for this
@@ -358,6 +372,16 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
         {
             CalculateSizes(outputMap.Values.ToList());
         }
+
+        filter = new AutoFilter();
+        if (exportConfiguration.AutoFilterDataRows)
+        {
+            //Start 1 row up from data row start (to include header)
+            var startPosition = GetCellReferenceByRowAndColumn(dataRowIndex -1, 1);
+            var endPosition = GetCellReferenceByRowAndColumn(currentRow - 1, headerProperties.Max(p => p.Order));
+            filter.Reference = $"{startPosition}:{endPosition}";
+        }
+
         return data;
     }
     
