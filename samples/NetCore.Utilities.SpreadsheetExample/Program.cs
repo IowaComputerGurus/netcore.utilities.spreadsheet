@@ -52,7 +52,7 @@ namespace NetCore.Utilities.SpreadsheetExample
             for (var i = 0; i < numberOfRecords; i++)
             {
                 listData.Add(new SimpleExportData
-                    {DueDate = DateTime.Now.AddDays(i), Notes = $"Record {i} notes", TotalCost = 15m, Title = $"Sample Data Row #{i}"});
+                    {DueDate = DateTime.Now.AddDays(i), Notes = $"Record {i} notes", TotalCost = 15m, TestingNumbers = 1234.4567289m, Title = $"Sample Data Row #{i}"});
             }
 
             return listData;

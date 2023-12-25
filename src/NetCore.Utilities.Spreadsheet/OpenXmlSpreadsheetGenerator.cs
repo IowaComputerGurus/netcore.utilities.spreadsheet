@@ -309,6 +309,7 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
                     ColumnFormats.Fixed0 => (int)FontStyleIndex.Fixed0,
                     ColumnFormats.Fixed1 => (int)FontStyleIndex.Fixed1,
                     ColumnFormats.Fixed2 => (int)FontStyleIndex.Fixed2,
+                    ColumnFormats.Fixed3 => (int)FontStyleIndex.Fixed3,
                     _ => dataCell.StyleIndex
                 };
                 outputMap[prop].Cells.Add(dataCell);
@@ -341,6 +342,7 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
                         ColumnFormats.Fixed0 => (int)FontStyleIndex.Fixed0,
                         ColumnFormats.Fixed1 => (int)FontStyleIndex.Fixed1,
                         ColumnFormats.Fixed2 => (int)FontStyleIndex.Fixed2,
+                        ColumnFormats.Fixed3 => (int)FontStyleIndex.Fixed3,
                         _ => dataCell.StyleIndex
                     };
                     
@@ -407,6 +409,7 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
         Fixed0 = 7,
         Fixed1=8,
         Fixed2=9,
+        Fixed3=10
     }
 
     /// <summary>
@@ -461,7 +464,8 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
             new NumberingFormat { NumberFormatId = 300, FormatCode = "mm/dd/yyyy" },
             new NumberingFormat { NumberFormatId = 301, FormatCode = "0" },
             new NumberingFormat { NumberFormatId = 302, FormatCode = "0.0" },
-            new NumberingFormat { NumberFormatId = 303, FormatCode = "0.00" }
+            new NumberingFormat { NumberFormatId = 303, FormatCode = "0.00" },
+            new NumberingFormat { NumberFormatId = 304, FormatCode = "0.000" }
         );
 
         styles.CellFormats = new CellFormats(
@@ -516,6 +520,14 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
                 BorderId = 0,
                 FillId = 0,
                 NumberFormatId = 303,
+                ApplyNumberFormat = true
+            }, new CellFormat
+            {
+                FormatId = 0,
+                FontId = 0,
+                BorderId = 0,
+                FillId = 0,
+                NumberFormatId = 304,
                 ApplyNumberFormat = true
             }
         );

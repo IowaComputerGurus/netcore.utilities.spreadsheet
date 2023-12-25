@@ -132,6 +132,7 @@ public class OpenXmlSpreadsheetGeneratorTests
             .RuleFor(i => i.Fixed0, f => f.Random.Decimal(0, 100))
             .RuleFor(i => i.Fixed1, f => f.Random.Decimal(0, 100))
             .RuleFor(i => i.Fixed2, f => f.Random.Decimal(0, 100))
+            .RuleFor(i => i.Fixed3, f=> f.Random.Decimal(0, 100))
     ;
 
     private static Faker<DifferentTestExportRecord> GetDifferentTestExportRecordFaker() =>

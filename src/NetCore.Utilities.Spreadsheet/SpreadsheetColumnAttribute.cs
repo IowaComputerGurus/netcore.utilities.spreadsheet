@@ -90,4 +90,9 @@ public static class ColumnFormats
     ///     Formats the column as a number with two decimal places
     /// </summary>
     public const string Fixed2 = "f2";
+
+    /// <summary>
+    ///     formats the column as a number with three decimal places
+    /// </summary>
+    public const string Fixed3 = "f3";
 }

@@ -10,8 +10,11 @@ namespace NetCore.Utilities.SpreadsheetExample.Models
         [SpreadsheetColumn("Due Date", format:"D")]
         public DateTime DueDate { get; set; }
         
-        [SpreadsheetColumn("Total Cost", format:"C", Formula = "SUM")]
+        [SpreadsheetColumn("Total Cost", format:"C", formula: "SUM")]
         public decimal TotalCost { get; set; }
+
+        [SpreadsheetColumn("Testing Numbers", format:"F3")]
+        public decimal TestingNumbers { get; set; }
 
         public string Notes { get; set; }
     }
