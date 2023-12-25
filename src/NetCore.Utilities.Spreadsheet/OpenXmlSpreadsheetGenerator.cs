@@ -333,7 +333,16 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
                         CellFormula = new CellFormula($"{prop.Formula}({GetCellReferenceByRowAndColumn(firstDataRow.Value, prop.Order)}:{GetCellReferenceByRowAndColumn(currentRow - 1, prop.Order)})")
                     };
 
-                    dataCell.StyleIndex = (int)FontStyleIndex.DataHeader;
+                    //Match the formatting of the column for this
+                    dataCell.StyleIndex = prop.Format switch
+                    {
+                        ColumnFormats.Currency => (int)FontStyleIndex.NormalCurrency,
+                        ColumnFormats.Date => (int)FontStyleIndex.NormalDate,
+                        ColumnFormats.Fixed0 => (int)FontStyleIndex.Fixed0,
+                        ColumnFormats.Fixed1 => (int)FontStyleIndex.Fixed1,
+                        ColumnFormats.Fixed2 => (int)FontStyleIndex.Fixed2,
+                        _ => dataCell.StyleIndex
+                    };
                     
                     outputMap[prop].Cells.Add(dataCell);
                     dataRow.Append(dataCell);
