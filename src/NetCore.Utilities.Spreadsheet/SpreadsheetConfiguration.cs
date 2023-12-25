@@ -63,6 +63,11 @@ public interface ISpreadsheetConfiguration
     /// if set to true the header(s) will be frozen
     /// </summary>
     public bool FreezeHeaders { get; set; }
+
+    /// <summary>
+    /// If set to true the data section of the sheet will have auto-filter turned on
+    /// </summary>
+    public bool AutoFilterDataRows { get; set; }
 }
 /// <inheritdoc />
 /// <typeparam name="TRecord">The type to be exported</typeparam>
@@ -130,6 +135,9 @@ public class SpreadsheetConfiguration<T> : ISpreadsheetConfiguration<T> where T 
     /// if set to true the header(s) will be frozen
     /// </summary>
     public bool FreezeHeaders { get; set; }
+
+    /// <inheritdoc />
+    public bool AutoFilterDataRows { get; set; }
 }
 
 /// <summary>
