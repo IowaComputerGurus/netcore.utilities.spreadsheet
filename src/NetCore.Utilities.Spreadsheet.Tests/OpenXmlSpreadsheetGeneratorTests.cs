@@ -256,9 +256,6 @@ public class OpenXmlSpreadsheetGeneratorTests
             AutoSizeColumns = true,
             ExportData = testData
         });
-
-        // ms.Seek(0, SeekOrigin.Begin);
-        // File.WriteAllBytes(@"d:\dcore\test.xlsx", ms.ToArray());
         
         ms.Seek(0, SeekOrigin.Begin);
         ms.Should().NotHaveLength(0);
