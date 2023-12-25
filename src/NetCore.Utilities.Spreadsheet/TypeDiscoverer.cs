@@ -11,7 +11,8 @@ internal record PropDetail(
     PropertyDescriptor Descriptor,
     string DisplayName,
     string Format,
-    float Width
+    float Width,
+    string Formula
 );
 
 /// <summary>
@@ -35,6 +36,7 @@ internal static class TypeDiscoverer
             if (p.DisplayName == p.Name) propName = TypeNameRegex.Replace(p.Name, " ");
 
             var ignored = false;
+            string formula = null;
             foreach (var attr in p.Attributes)
             {
                 if (attr is SpreadsheetColumnAttribute sca)
@@ -48,6 +50,7 @@ internal static class TypeDiscoverer
                     format = (sca.Format ?? format).ToLowerInvariant();
                     propName = sca.DisplayName ?? propName;
                     width = sca.Width;
+                    formula = sca.Formula;
                 }
                 else if (attr is DisplayAttribute display)
                 {
@@ -58,7 +61,7 @@ internal static class TypeDiscoverer
 
             if (ignored) continue;
 
-            details.Add(new PropDetail(columnOrder, p, propName, format, width));
+            details.Add(new PropDetail(columnOrder, p, propName, format, width, formula));
             columnOrder++;
         }
 

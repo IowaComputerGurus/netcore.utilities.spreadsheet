@@ -113,3 +113,15 @@ public class DifferentTestExportRecord
     public double Amount { get; set; }
 
 }
+
+public class SampleExportRecordWithFormula
+{
+    [DisplayName("Title")]
+    public string? RecordTitle { get; set; }
+
+    [SpreadsheetColumn("Amount", Formula = "SUM")]
+    public decimal RecordAmount { get; set; }
+    
+    [SpreadsheetColumn("Size", Formula = "MAX")]
+    public decimal RecordSize { get; set; }
+}
