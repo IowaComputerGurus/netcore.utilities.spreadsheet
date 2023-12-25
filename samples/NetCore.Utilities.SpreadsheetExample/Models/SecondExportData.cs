@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace NetCore.Utilities.SpreadsheetExample.Models;
 
-namespace NetCore.Utilities.SpreadsheetExample.Models
+internal class SecondExportData
 {
-    class SecondExportData
-    {
-    }
+
 }
