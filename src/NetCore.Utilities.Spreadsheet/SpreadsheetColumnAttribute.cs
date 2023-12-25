@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 
 namespace ICG.NetCore.Utilities.Spreadsheet;
 
@@ -19,13 +18,14 @@ public class SpreadsheetColumnAttribute : Attribute
     /// <param name="width">Sets the width of the column</param>
     /// <param name="ignore">If true, the column will be excluded from the spreadsheet</param>
     /// <param name="format">Sets the format of the column data</param>
-    public SpreadsheetColumnAttribute(string displayName = null, float width = 0, bool ignore = false, 
-        string format = null)
+    public SpreadsheetColumnAttribute(string displayName = null, float width = 0, bool ignore = false,
+        string format = null, string formula = null)
     {
         DisplayName = displayName;
         Width = width;
         Ignore = ignore;
         Format = format;
+        Formula = formula;
     }
 
     /// <summary>
@@ -47,18 +47,22 @@ public class SpreadsheetColumnAttribute : Attribute
     public bool Ignore { get; }
 
     /// <summary>
-    ///     A custom format for the column. See <see cref="ColumnFormats"/> for valid values.
+    ///     A custom format for the column. See <see cref="ColumnFormats" /> for valid values.
     /// </summary>
     public string Format { get; }
-    
+
     /// <summary>
     ///     A custom formula for the column. For example SUM, MIN, MAX, etc.
     /// </summary>
+    /// <remarks>
+    ///     One additional data row will be added and an auto-created formula will be added to execute the formula at the
+    ///     bottom with the range of the column
+    /// </remarks>
     public string Formula { get; set; }
 }
 
 /// <summary>
-///     Contains valid values for <see cref="SpreadsheetColumnAttribute.Format"/>
+///     Contains valid values for <see cref="SpreadsheetColumnAttribute.Format" />
 /// </summary>
 public static class ColumnFormats
 {
@@ -86,4 +90,9 @@ public static class ColumnFormats
     ///     Formats the column as a number with two decimal places
     /// </summary>
     public const string Fixed2 = "f2";
+
+    /// <summary>
+    ///     formats the column as a number with three decimal places
+    /// </summary>
+    public const string Fixed3 = "f3";
 }

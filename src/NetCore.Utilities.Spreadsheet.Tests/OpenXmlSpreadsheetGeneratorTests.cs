@@ -132,6 +132,7 @@ public class OpenXmlSpreadsheetGeneratorTests
             .RuleFor(i => i.Fixed0, f => f.Random.Decimal(0, 100))
             .RuleFor(i => i.Fixed1, f => f.Random.Decimal(0, 100))
             .RuleFor(i => i.Fixed2, f => f.Random.Decimal(0, 100))
+            .RuleFor(i => i.Fixed3, f=> f.Random.Decimal(0, 100))
     ;
 
     private static Faker<DifferentTestExportRecord> GetDifferentTestExportRecordFaker() =>
@@ -256,9 +257,6 @@ public class OpenXmlSpreadsheetGeneratorTests
             AutoSizeColumns = true,
             ExportData = testData
         });
-
-        // ms.Seek(0, SeekOrigin.Begin);
-        // File.WriteAllBytes(@"d:\dcore\test.xlsx", ms.ToArray());
         
         ms.Seek(0, SeekOrigin.Begin);
         ms.Should().NotHaveLength(0);

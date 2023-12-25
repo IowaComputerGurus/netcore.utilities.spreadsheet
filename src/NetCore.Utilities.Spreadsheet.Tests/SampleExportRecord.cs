@@ -92,6 +92,10 @@ public class TestExportRecord
     [SpreadsheetColumn(displayName: "Fixed2", format: ColumnFormats.Fixed2)]
     [SpreadsheetImportColumn(19)]
     public decimal Fixed2 { get; set; }
+
+    [SpreadsheetColumn(displayName: "Fixed3", format: ColumnFormats.Fixed3)]
+    [SpreadsheetImportColumn(20)]
+    public decimal Fixed3 { get; set; }
 }
 
 public class DifferentTestExportRecord
