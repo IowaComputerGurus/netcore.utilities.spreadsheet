@@ -50,7 +50,17 @@ public class SpreadsheetColumnAttribute : Attribute
     ///     A custom format for the column. See <see cref="ColumnFormats" /> for valid values.
     /// </summary>
     public string Format { get; }
-
+    
+    /// <summary>
+    ///     If set, will use the resource file and key to get the display name
+    /// </summary>
+    public Type ResourceFileType { get; set; }
+    
+    /// <summary>
+    ///     If set, will use the resource file and key to get the display name
+    /// </summary>
+    public string ResourceKey { get; set; }
+    
     /// <summary>
     ///     A custom formula for the column. For example SUM, MIN, MAX, etc.
     /// </summary>
