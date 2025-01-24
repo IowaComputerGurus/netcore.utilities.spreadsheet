@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using Bogus;
-using FluentAssertions;
 using Xunit;
 
 namespace ICG.NetCore.Utilities.Spreadsheet.Tests;
@@ -133,9 +132,11 @@ public class OpenXmlSpreadsheetGeneratorTests
 
         // ms.Seek(0, SeekOrigin.Begin);
         // File.WriteAllBytes(@"d:\dcore\test.xlsx", ms.ToArray());
-        
-        result.Should().BeTrue();
-        ms.Should().NotHaveLength(0);
+
+        //result.Should().BeTrue();
+        Assert.True(result);
+        //ms.Should().NotHaveLength(0);
+        Assert.NotEqual(0, ms.Length);
     }
 
     private static Faker<TestExportRecord> GetTestExportRecordFaker() =>
@@ -191,8 +192,12 @@ public class OpenXmlSpreadsheetGeneratorTests
         using var ms = new MemoryStream();
         var result = _spreadsheetGenerator.CreateMultiSheetSpreadsheet(ms, config);
 
-        result.Should().BeTrue();
-        ms.Should().NotHaveLength(0);
+        //result.Should().BeTrue();
+        Assert.True(result);
+
+        //ms.Should().NotHaveLength(0);
+        Assert.NotEqual(0, ms.Length);
+
 
         //var sheetPath = Path.Join(Path.GetTempPath(), $"CreateMultiSheetSpreadsheet_With_A_Stream_Should_Work_{DateTime.Now:yyyyMMddHHmmssfff}.xlsx");
         //File.WriteAllBytes(sheetPath, ms.ToArray());
@@ -218,7 +223,9 @@ public class OpenXmlSpreadsheetGeneratorTests
             })
             .WithSheet("Sheet 2", testSheet2Data);
         var result = _spreadsheetGenerator.CreateMultiSheetSpreadsheet(config);
-        result.Should().NotBeNullOrEmpty();
+        //result.Should().NotBeNullOrEmpty();
+        Assert.NotNull(result);
+        Assert.NotEqual(0, result.Length);
         //var sheetPath = Path.Join(Path.GetTempPath(), $"CreateMultiSheetSpreadsheet_With_A_Stream_Should_Work_{DateTime.Now:yyyyMMddHHmmssfff}.xlsx");
         //File.WriteAllBytes(sheetPath, ms.ToArray());
 
@@ -241,7 +248,8 @@ public class OpenXmlSpreadsheetGeneratorTests
             ExportData = testData
         });
         ms.Seek(0, SeekOrigin.Begin);
-        ms.Should().NotHaveLength(0);
+        //ms.Should().NotHaveLength(0);
+        Assert.NotEqual(0, ms.Length);
         ValidateExportedSheet(ms, 1, testData);
     }
 
@@ -256,7 +264,10 @@ public class OpenXmlSpreadsheetGeneratorTests
             AutoSizeColumns = false,
             ExportData = testData
         });
-        result.Should().NotBeNullOrEmpty();
+        //result.Should().NotBeNullOrEmpty();
+        Assert.NotNull(result);
+        Assert.NotEqual(0, result.Length);
+
         using var ms = new MemoryStream(result);
         /* These lines are write out the Excel spreadsheet that was generated for a manual check to ensure
          * that its actually displaying the values right, and we didn't offend its delicate sensibilities by
@@ -287,7 +298,9 @@ public class OpenXmlSpreadsheetGeneratorTests
         });
         
         ms.Seek(0, SeekOrigin.Begin);
-        ms.Should().NotHaveLength(0);
+        //ms.Should().NotHaveLength(0);
+        Assert.NotEqual(0, ms.Length);
+
     }
 
     /*
