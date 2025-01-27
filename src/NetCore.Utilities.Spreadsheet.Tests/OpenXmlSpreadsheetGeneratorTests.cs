@@ -214,9 +214,8 @@ public class OpenXmlSpreadsheetGeneratorTests
             })
             .WithSheet("Sheet 2", testSheet2Data);
         var result = _spreadsheetGenerator.CreateMultiSheetSpreadsheet(config);
-        //result.Should().NotBeNullOrEmpty();
         Assert.NotNull(result);
-        Assert.True(result.Length==0);
+        Assert.False(result.Length==0);
         
     }
 
@@ -233,7 +232,6 @@ public class OpenXmlSpreadsheetGeneratorTests
             ExportData = testData
         });
         ms.Seek(0, SeekOrigin.Begin);
-        //ms.Should().NotHaveLength(0);
         Assert.NotEqual(0, ms.Length);
     }
 
@@ -248,9 +246,8 @@ public class OpenXmlSpreadsheetGeneratorTests
             AutoSizeColumns = false,
             ExportData = testData
         });
-        //result.Should().NotBeNullOrEmpty();
         Assert.NotNull(result);
-        Assert.True(result.Length==0);
+        Assert.False(result.Length==0);
 
     }
     
@@ -274,8 +271,7 @@ public class OpenXmlSpreadsheetGeneratorTests
         });
         
         ms.Seek(0, SeekOrigin.Begin);
-        //ms.Should().NotHaveLength(0);
-        Assert.True(ms.Length==0);
+        Assert.False(ms.Length==0);
 
     }
     
