@@ -41,4 +41,4 @@ jobs:
       run: dotnet test "${{ env.solution-path }}" --no-build --configuration Release
     
     - name: Publish
-      run: nuget push **\*.nupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{secrets.ICG_NUGET_API_KEY}}
+      run: dotnet nuget push "**/*.nupkg" --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.ICG_NUGET_API_KEY }}
