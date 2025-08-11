@@ -24,13 +24,13 @@ jobs:
         dotnet-version: 6.0.x
         
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v3.2.1
+      uses: gittools/actions/gitversion/setup@v4.1.0
       with:
         versionSpec: '6.0.5'
 
     - name: Determine Version
       id: gitversion
-      uses: gittools/actions/gitversion/execute@v3.2.1
+      uses: gittools/actions/gitversion/execute@v4.1.0
       with:
         useConfigFile: true
         
@@ -77,13 +77,13 @@ jobs:
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
           
       - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v3.2.1
+        uses: gittools/actions/gitversion/setup@v4.1.0
         with:
           versionSpec: '6.0.5'
     
       - name: Determine Version
         id: gitversion
-        uses: gittools/actions/gitversion/execute@v3.2.1
+        uses: gittools/actions/gitversion/execute@v4.1.0
         with:
           useConfigFile: true
         
