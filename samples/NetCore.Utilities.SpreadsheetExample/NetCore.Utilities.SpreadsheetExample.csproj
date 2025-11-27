@@ -2,17 +2,17 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="DocumentFOrmat.OpenXml" Version="2.16.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="NetCore.Utilities.Spreadsheet">
-      <HintPath>..\..\src\NetCore.Utilities.Spreadsheet\bin\Debug\net6.0\NetCore.Utilities.Spreadsheet.dll</HintPath>
+      <HintPath>..\..\src\NetCore.Utilities.Spreadsheet\bin\Debug\net9.0\NetCore.Utilities.Spreadsheet.dll</HintPath>
     </Reference>
   </ItemGroup>
 
