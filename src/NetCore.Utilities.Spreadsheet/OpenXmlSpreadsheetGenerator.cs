@@ -46,7 +46,7 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
                 nameof(exportConfiguration.DocumentSubTitle));
 
         //Create the document & overall workbook
-        var spreadsheetDocument = SpreadsheetDocument.Create(output, SpreadsheetDocumentType.Workbook);
+        using var spreadsheetDocument = SpreadsheetDocument.Create(output, SpreadsheetDocumentType.Workbook);
 
         var workbookPart = spreadsheetDocument.AddWorkbookPart();
         workbookPart.Workbook = new Workbook();
@@ -87,7 +87,6 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
         sheets.Append(sheet);
 
         workbookPart.Workbook.Save();
-        spreadsheetDocument.Close();
         return true;
 
     }
@@ -157,10 +156,10 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
             throw new ArgumentNullException(nameof(exportSheets));
 
         //Create the document & overall workbook
-        var spreadsheetDocument = SpreadsheetDocument.Create(output, SpreadsheetDocumentType.Workbook);
+        using var spreadsheetDocument = SpreadsheetDocument.Create(output, SpreadsheetDocumentType.Workbook);
         var workbookPart = spreadsheetDocument.AddWorkbookPart();
         workbookPart.Workbook = new Workbook();
-        var sheets = spreadsheetDocument.WorkbookPart.Workbook.AppendChild(new Sheets());
+        var sheets = spreadsheetDocument.WorkbookPart!.Workbook.AppendChild(new Sheets());
 
         //Setup our styles
         var stylesPart = spreadsheetDocument.WorkbookPart.AddNewPart<WorkbookStylesPart>();
@@ -199,9 +198,9 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
             sheets.Append(sheet);
             sheetId++;
         }
+
         //Save off the file
         workbookPart.Workbook.Save();
-        spreadsheetDocument.Close();
 
         return true;
     }
