@@ -24,15 +24,13 @@ jobs:
         dotnet-version: 9.0.x
         
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v3.2.1
+      uses: gittools/actions/gitversion/setup@v4.2.0
       with:
-        versionSpec: '6.0.5'
-
+        versionSpec: '6.4.0'
+  
     - name: Determine Version
       id: gitversion
-      uses: gittools/actions/gitversion/execute@v3.2.1
-      with:
-        useConfigFile: true
+      uses: gittools/actions/gitversion/execute@v4.2.0
         
     - name: Restore Packages
       run: dotnet restore "${{ env.solution-path }}"
@@ -81,15 +79,13 @@ jobs:
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
           
       - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v3.2.1
+        uses: gittools/actions/gitversion/setup@v4.2.0
         with:
-          versionSpec: '6.0.5'
+          versionSpec: '6.4.0'
     
       - name: Determine Version
         id: gitversion
-        uses: gittools/actions/gitversion/execute@v3.2.1
-        with:
-          useConfigFile: true
+        uses: gittools/actions/gitversion/execute@v4.2.0
         
       - name: Build and analyze
         env:
@@ -97,8 +93,8 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         shell: powershell
         run: |
-          .\.sonar\scanner\dotnet-sonarscanner begin /k:"IowaComputerGurus_netcore.utilities.spreadsheet" /o:"iowacomputergurus-github" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
+          .\.sonar\scanner\dotnet-sonarscanner begin /k:"IowaComputerGurus_netcore.utilities.spreadsheet" /o:"iowacomputergurus-github" /d:sonar.token="${{ env.SONAR_TOKEN }}"
           dotnet restore "${{ env.solution-path }}"
           dotnet build "${{ env.solution-path }}" --no-restore --configuration Release -p:version=${{ steps.gitversion.outputs.majorMinorPatch }}
           dotnet test "${{ env.solution-path }}" --no-build --configuration Release --collect "XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover --logger "trx;LogFileName=unittests.trx"
-          .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+          .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ env.SONAR_TOKEN }}"

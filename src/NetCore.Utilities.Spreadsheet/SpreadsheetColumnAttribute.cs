@@ -18,6 +18,7 @@ public class SpreadsheetColumnAttribute : Attribute
     /// <param name="width">Sets the width of the column</param>
     /// <param name="ignore">If true, the column will be excluded from the spreadsheet</param>
     /// <param name="format">Sets the format of the column data</param>
+    /// <param name="formula">Sets a specific formula to be utilized by this column</param>
     public SpreadsheetColumnAttribute(string displayName = null, float width = 0, bool ignore = false,
         string format = null, string formula = null)
     {

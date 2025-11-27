@@ -155,42 +155,39 @@ public class OpenXmlSpreadsheetParser : ISpreadsheetParser
             return cell.InnerText;
 
         string value = cell.InnerText;
-        switch (cell.DataType.Value)
+        if (cell.DataType.Value == CellValues.SharedString)
         {
-            case CellValues.SharedString:
-                // For shared strings, look up the value in the shared strings table.
-                // Get worksheet from cell
-                Debug.Assert(cell.Parent != null, "cell.Parent != null");
-                OpenXmlElement parent = cell.Parent;
-                while (parent.Parent != null && parent.Parent != parent
-                                             && string.Compare(parent.LocalName, "worksheet", StringComparison.OrdinalIgnoreCase) != 0)
-                {
-                    parent = parent.Parent;
-                }
-                if (string.Compare(parent.LocalName, "worksheet", StringComparison.OrdinalIgnoreCase) != 0)
-                {
-                    throw new SpreadsheetParserException($"Unable to find parent worksheet of cell {cell}");
-                }
+            // For shared strings, look up the value in the shared strings table.
+            // Get worksheet from cell
+            Debug.Assert(cell.Parent != null, "cell.Parent != null");
+            OpenXmlElement parent = cell.Parent;
+            while (parent.Parent != null && parent.Parent != parent
+                                         && string.Compare(parent.LocalName, "worksheet", StringComparison.OrdinalIgnoreCase) != 0)
+            {
+                parent = parent.Parent;
+            }
+            if (string.Compare(parent.LocalName, "worksheet", StringComparison.OrdinalIgnoreCase) != 0)
+            {
+                throw new SpreadsheetParserException($"Unable to find parent worksheet of cell {cell}");
+            }
 
-                var ws = parent as Worksheet;
-                var ssDoc = ws?.WorksheetPart?.OpenXmlPackage as SpreadsheetDocument;
-                var sstPart = ssDoc?.WorkbookPart?.GetPartsOfType<SharedStringTablePart>().FirstOrDefault();
+            var ws = parent as Worksheet;
+            var ssDoc = ws?.WorksheetPart?.OpenXmlPackage as SpreadsheetDocument;
+            var sstPart = ssDoc?.WorkbookPart?.GetPartsOfType<SharedStringTablePart>().FirstOrDefault();
 
-                return sstPart == null ? value : sstPart.SharedStringTable.ElementAt(int.Parse(value)).InnerText;
-            //this case within a case is copied from msdn. 
-            case CellValues.Boolean:
-                return value switch
-                {
-                    "0" => "FALSE",
-                    _ => "TRUE"
-                };
-            case CellValues.Number:
-            case CellValues.Error:
-            case CellValues.String:
-            case CellValues.InlineString:
-            case CellValues.Date:
-            default:
-                return value;
+            return sstPart == null ? value : sstPart.SharedStringTable.ElementAt(int.Parse(value)).InnerText;
         }
+
+        if (cell.DataType.Value == CellValues.Boolean)
+        {
+            return value switch
+            {
+                "0" => "FALSE",
+                _ => "TRUE"
+            };
+        }
+
+        //All other types return the value
+        return value;
     }
 }

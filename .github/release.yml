@@ -1,0 +1,23 @@
+changelog:
+  exclude:
+    labels:
+      - question
+      - wontfix
+      - invalid
+  categories:
+    - title: Exciting New Features 🎉
+      labels:
+        - enhancement
+        - feature
+    - title: Squashed Bugs 🐛
+      labels:
+        - bug
+        - breaking-change
+    - title: Administrative
+      labels:
+        - administrative
+        - documentation
+        - dependencies
+    - title: Other Changes
+      labels:
+        - "*"

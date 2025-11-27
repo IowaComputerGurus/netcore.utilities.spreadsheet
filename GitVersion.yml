@@ -17,7 +17,6 @@ branches:
   pull-request:
     regex: (pull|pull\-requests|pr)[/-]
     label: 'pr'
-    label-number-pattern: '[/-](?<number>\d+)[-/]'
     increment: Patch
     is-release-branch: false
     source-branches: []

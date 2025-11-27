@@ -1,6 +1,5 @@
 ﻿#nullable enable
 using System;
-using System.Runtime.Serialization;
 
 namespace ICG.NetCore.Utilities.Spreadsheet;
 
@@ -10,11 +9,6 @@ namespace ICG.NetCore.Utilities.Spreadsheet;
 [Serializable]
 public class SpreadsheetParserException : Exception
 {
-    /// <inheritdoc />
-    protected SpreadsheetParserException(SerializationInfo info, StreamingContext context) : base(info, context)
-    {
-    }
-
     internal SpreadsheetParserException(string message) : base(message)
     {
             
