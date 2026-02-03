@@ -314,16 +314,22 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
                 var itemValue = prop.Descriptor.GetValue(item);
                 var dataCell = CellFromValue(prop.Descriptor.PropertyType, itemValue);
 
-                dataCell.StyleIndex = prop.Format switch
+                if (!string.IsNullOrEmpty(prop.Format))
                 {
-                    ColumnFormats.Currency => (int)FontStyleIndex.NormalCurrency,
-                    ColumnFormats.Date => (int)FontStyleIndex.NormalDate,
-                    ColumnFormats.Fixed0 => (int)FontStyleIndex.Fixed0,
-                    ColumnFormats.Fixed1 => (int)FontStyleIndex.Fixed1,
-                    ColumnFormats.Fixed2 => (int)FontStyleIndex.Fixed2,
-                    ColumnFormats.Fixed3 => (int)FontStyleIndex.Fixed3,
-                    _ => dataCell.StyleIndex
-                };
+                    dataCell.StyleIndex = prop.Format.ToLowerInvariant() switch
+                    {
+                        ColumnFormats.Currency => (int)FontStyleIndex.NormalCurrency,
+                        ColumnFormats.Date => (int)FontStyleIndex.NormalDate,
+                        ColumnFormats.Fixed0 => (int)FontStyleIndex.Fixed0,
+                        ColumnFormats.Fixed1 => (int)FontStyleIndex.Fixed1,
+                        ColumnFormats.Fixed2 => (int)FontStyleIndex.Fixed2,
+                        ColumnFormats.Fixed3 => (int)FontStyleIndex.Fixed3,
+                        ColumnFormats.Currency3 => (int)FontStyleIndex.Currency3,
+                        ColumnFormats.Currency4 => (int)FontStyleIndex.Currency4,
+                        _ => dataCell.StyleIndex
+                    };
+                }
+                
                 outputMap[prop].Cells.Add(dataCell);
                 dataRow.Append(dataCell);
             }
@@ -347,18 +353,23 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
                         CellFormula = new CellFormula($"{prop.Formula}({GetCellReferenceByRowAndColumn(dataRowIndex, prop.Order)}:{GetCellReferenceByRowAndColumn(currentRow - 1, prop.Order)})")
                     };
 
-                    //Match the formatting of the column for this
-                    dataCell.StyleIndex = prop.Format switch
+                    if (!string.IsNullOrEmpty(prop.Format))
                     {
-                        ColumnFormats.Currency => (int)FontStyleIndex.NormalCurrency,
-                        ColumnFormats.Date => (int)FontStyleIndex.NormalDate,
-                        ColumnFormats.Fixed0 => (int)FontStyleIndex.Fixed0,
-                        ColumnFormats.Fixed1 => (int)FontStyleIndex.Fixed1,
-                        ColumnFormats.Fixed2 => (int)FontStyleIndex.Fixed2,
-                        ColumnFormats.Fixed3 => (int)FontStyleIndex.Fixed3,
-                        _ => dataCell.StyleIndex
-                    };
-                    
+                        //Match formatting
+                        dataCell.StyleIndex = prop.Format.ToLowerInvariant() switch
+                        {
+                            ColumnFormats.Currency => (int)FontStyleIndex.NormalCurrency,
+                            ColumnFormats.Date => (int)FontStyleIndex.NormalDate,
+                            ColumnFormats.Fixed0 => (int)FontStyleIndex.Fixed0,
+                            ColumnFormats.Fixed1 => (int)FontStyleIndex.Fixed1,
+                            ColumnFormats.Fixed2 => (int)FontStyleIndex.Fixed2,
+                            ColumnFormats.Fixed3 => (int)FontStyleIndex.Fixed3,
+                            ColumnFormats.Currency3 => (int)FontStyleIndex.Currency3,
+                            ColumnFormats.Currency4 => (int)FontStyleIndex.Currency4,
+                            _ => dataCell.StyleIndex
+                        };
+                    }
+
                     outputMap[prop].Cells.Add(dataCell);
                     dataRow.Append(dataCell);
                 }
@@ -432,7 +443,9 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
         Fixed0 = 7,
         Fixed1=8,
         Fixed2=9,
-        Fixed3=10
+        Fixed3=10,
+        Currency3=11,
+        Currency4=12,
     }
 
     /// <summary>
@@ -488,7 +501,9 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
             new NumberingFormat { NumberFormatId = 301, FormatCode = "0" },
             new NumberingFormat { NumberFormatId = 302, FormatCode = "0.0" },
             new NumberingFormat { NumberFormatId = 303, FormatCode = "0.00" },
-            new NumberingFormat { NumberFormatId = 304, FormatCode = "0.000" }
+            new NumberingFormat { NumberFormatId = 304, FormatCode = "0.000" },
+            new NumberingFormat { NumberFormatId = 401, FormatCode = "\"$\"#,##0.000" },
+            new NumberingFormat { NumberFormatId = 402, FormatCode = "\"$\"#,##0.0000" }
         );
 
         styles.CellFormats = new CellFormats(
