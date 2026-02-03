@@ -88,6 +88,16 @@ public static class ColumnFormats
     public const string Currency = "c";
 
     /// <summary>
+    ///     Formats as a currency layout with 3 decimal places
+    /// </summary>
+    public const string Currency3 = "c3";
+
+    /// <summary>
+    ///     Formats as a currently layout with 4 decimal places
+    /// </summary>
+    public const string Currency4 = "c4";
+
+    /// <summary>
     ///     Formats the column as a number with no decimal places
     /// </summary>
     public const string Fixed0 = "f0";
