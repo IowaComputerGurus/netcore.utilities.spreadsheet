@@ -534,7 +534,7 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
                 NumberFormatId = 22,
                 ApplyNumberFormat = true
             },
-            new CellFormat
+            new CellFormat // F0
             {
                 FormatId = 0,
                 FontId = 0,
@@ -543,7 +543,7 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
                 NumberFormatId = 301,
                 ApplyNumberFormat = true
             },
-            new CellFormat
+            new CellFormat // F1
             {
                 FormatId = 0,
                 FontId = 0,
@@ -551,7 +551,8 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
                 FillId = 0,
                 NumberFormatId = 302,
                 ApplyNumberFormat = true
-            }, new CellFormat
+            }, 
+            new CellFormat // F2
             {
                 FormatId = 0,
                 FontId = 0,
@@ -559,13 +560,32 @@ public class OpenXmlSpreadsheetGenerator : ISpreadsheetGenerator
                 FillId = 0,
                 NumberFormatId = 303,
                 ApplyNumberFormat = true
-            }, new CellFormat
+            }, 
+            new CellFormat // F3
             {
                 FormatId = 0,
                 FontId = 0,
                 BorderId = 0,
                 FillId = 0,
                 NumberFormatId = 304,
+                ApplyNumberFormat = true
+            },
+            new CellFormat // C3
+            {
+                FormatId = 0,
+                FontId = 0,
+                BorderId = 0,
+                FillId = 0,
+                NumberFormatId = 401,
+                ApplyNumberFormat = true
+            },
+            new CellFormat // C4
+            {
+                FormatId = 0,
+                FontId = 0,
+                BorderId = 0,
+                FillId = 0,
+                NumberFormatId = 402,
                 ApplyNumberFormat = true
             }
         );
