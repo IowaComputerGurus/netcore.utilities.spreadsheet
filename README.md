@@ -25,6 +25,8 @@ Standard installation via NuGet Package Manager
 Install-Package ICG.NetCore.Utilities.Spreadsheet
 ```
 
+Current releases target .NET 10.
+
 ## Setup
 To setup the needed dependency injection items for this library, add the following line in your DI setup.
 ``` csharp
