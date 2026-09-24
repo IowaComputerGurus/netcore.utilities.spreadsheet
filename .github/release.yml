@@ -1,23 +1,69 @@
+# .github/release.yml
+# ICG Standard 1.0
+
 changelog:
   exclude:
     labels:
       - question
       - wontfix
       - invalid
+
   categories:
-    - title: Exciting New Features 🎉
+    - title: "⚠️ BREAKING CHANGES - ACTION REQUIRED"
       labels:
-        - enhancement
+        - breaking-change
+
+    - title: "🚀 New Features"
+      labels:
         - feature
-    - title: Squashed Bugs 🐛
+        - enhancement
+        - new-feature
+
+    - title: "✨ Improvements"
+      labels:
+        - improvement
+        - optimization
+        - refactor
+
+    - title: "🐛 Bug Fixes"
       labels:
         - bug
-        - breaking-change
-    - title: Administrative
+        - bugfix
+        - fix
+
+    - title: "🔒 Security"
       labels:
-        - administrative
-        - documentation
+        - security
+
+    - title: "⚡ Performance"
+      labels:
+        - performance
+
+    - title: "🛠 Maintenance"
+      labels:
+        - maintenance
         - dependencies
-    - title: Other Changes
+        - dependency
+        - chore
+        - cleanup
+
+    - title: "📚 Documentation"
       labels:
-        - "*"
+        - documentation
+        - docs
+
+    - title: "🧪 Testing"
+      labels:
+        - test
+        - testing
+
+    - title: "🏗 Infrastructure"
+      labels:
+        - ci
+        - github-actions
+        - infrastructure
+        - devops
+        - build
+
+    - title: "Other Changes"
+      labels: []
