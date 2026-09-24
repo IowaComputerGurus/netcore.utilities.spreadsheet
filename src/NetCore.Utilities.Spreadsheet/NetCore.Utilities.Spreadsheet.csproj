@@ -11,7 +11,7 @@
 		<PackageId>ICG.NetCore.Utilities.Spreadsheet</PackageId>
 		<Title>NetCore Utilities Spreadsheet</Title>
 		<Description>A library containing an easily reusable spreadsheet generation and parsing capability leveraging the OpenXml specification.</Description>
-		<Copyright>Copyright 2026, IowaComputerGurus All Rights Reserved</Copyright>
+		<Copyright>Copyright 2021-2026, IowaComputerGurus All Rights Reserved</Copyright>
 		<PackageProjectUrl>https://github.com/IowaComputerGurus/netcore.utilities.spreadsheet</PackageProjectUrl>
 		<PackageTags>aspnetcore;utility;spreadsheet</PackageTags>
 		<RepositoryUrl>https://github.com/IowaComputerGurus/netcore.utilities.spreadsheet</RepositoryUrl>
