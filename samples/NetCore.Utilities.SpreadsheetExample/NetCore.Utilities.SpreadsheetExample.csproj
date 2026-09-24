@@ -11,9 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="NetCore.Utilities.Spreadsheet">
-      <HintPath>..\..\src\NetCore.Utilities.Spreadsheet\bin\Debug\net10.0\NetCore.Utilities.Spreadsheet.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\..\src\NetCore.Utilities.Spreadsheet\NetCore.Utilities.Spreadsheet.csproj" />
   </ItemGroup>
 
 </Project>
